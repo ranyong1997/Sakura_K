@@ -10,12 +10,10 @@ import io
 import os
 import sys
 import zipfile
-
 import aioshutil
 from aiopathlib import AsyncPath
 from fastapi import UploadFile
-
-from application.settings import STATIC_ROOT, BASE_DIR, STATIC_URL
+from application.settings import settings
 from core.exception import CustomException
 from utils.file.file_base import FileBase
 
@@ -74,7 +72,10 @@ class FileManage(FileBase):
         await path.write_bytes(await self.file.read())
         return {
             "local_path": str(path),
-            "remote_path": STATIC_URL + str(path).replace(STATIC_ROOT, '').replace("\\", '/'),
+            "remote_path": settings.system.STATIC_URL + str(path).replace(settings.system.STATIC_PATH, '').replace(
+                "\\",
+                '/'
+            ),
             "file_size": "{:.2f} MB".format(file_size / 1024 / 1024)
         }
 
@@ -116,7 +117,7 @@ class FileManage(FileBase):
         """
         if src[0] == "/":
             src = src.lstrip("/")
-        src = AsyncPath(BASE_DIR) / src
+        src = AsyncPath(settings.system.BASE_PATH) / src
         if not await src.exists():
             raise CustomException(f"{src} 源文件不存在！")
         dst = AsyncPath(dst)

@@ -12,7 +12,7 @@ from enum import Enum
 
 from sqlalchemy import insert
 
-from application.settings import BASE_DIR, VERSION
+from application.settings import VERSION, settings
 from apps.vadmin.auth import models as auth_models
 from apps.vadmin.help import models as help_models
 from apps.vadmin.system import models as system_models
@@ -35,7 +35,7 @@ class InitializeData:
         3. 创建数据
     """
 
-    SCRIPT_DIR = os.path.join(BASE_DIR, 'scripts', 'initialize')
+    SCRIPT_DIR = os.path.join(settings.system.BASE_PATH, 'scripts', 'initialize')
 
     def __init__(self):
         self.sheet_names = []
@@ -51,9 +51,9 @@ class InitializeData:
         模型迁移映射到数据库
         """
         subprocess.check_call(
-            ['alembic', '--name', f'{env.value}', 'revision', '--autogenerate', '-m', f'{VERSION}'], cwd=BASE_DIR
+            ['alembic', '--name', f'{env.value}', 'revision', '--autogenerate', '-m', f'{VERSION}'], cwd=settings.system.BASE_PATH
         )
-        subprocess.check_call(['alembic', '--name', f'{env.value}', 'upgrade', 'head'], cwd=BASE_DIR)
+        subprocess.check_call(['alembic', '--name', f'{env.value}', 'upgrade', 'head'], cwd=settings.system.BASE_PATH)
         print(f"环境：{env}  {VERSION} 数据库表迁移完成")
 
     def __serializer_data(self):

@@ -28,10 +28,15 @@ from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiof
 from application import settings
 from application import urls
 from core.docs import custom_api_docs
-from core.event import lifespan
-from core.exception import register_exception
+from core.register import register_event, \
+    register_exception, \
+    register_middleware, \
+    register_static, \
+    register_router, \
+    register_system_router
 from scripts.create_app.main import CreateApp
 from scripts.initialize.initialize import InitializeData, Environment
+from utils.response import ErrorResponseSchema
 from utils.tools import import_modules
 
 shell_app = typer.Typer()
@@ -45,19 +50,36 @@ def create_app():
     openapi_url：配置接口文件json数据文件路由地址，如果禁用则为None，默认为/openapi.json
     :return:
     """
+    # 异常 Response 定义
+    responses = {400: {"model": ErrorResponseSchema, "description": "请求失败"}}
+
     app = FastAPI(
-        title="sakura_k",  # 标题
+        title="Sakura_K",  # 标题
         version=settings.VERSION,  # 版本号
         description=settings.PROJECT_DESCRIPTION,  # Swagger描述
-        lifespan=lifespan,  # 指定了应用程序的生命周期管理器
+        lifespan=register_event,  # 指定了应用程序的生命周期管理器
         docs_url=None,
-        redoc_url=None
+        redoc_url=None,
+        responses=responses
     )
     # 调用了 import_modules 函数来导入指定的中间件，该函数接受三个参数：modules 表示要导入的模块列表，message 表示当前导入的模块的消息，
     # app 表示 FastAPI 应用程序对象的引用。在这里，modules 和 message 都是 settings.MIDDLEWARES 和 "中间件"，而 app 则是传入的参数。
     import_modules(settings.MIDDLEWARES, "中间件", app=app)
-    # 函数中调用了 register_exception 函数来注册全局异常捕获处理。
+
+    # 全局异常捕捉处理
     register_exception(app)
+
+    # 注册中间件
+    register_middleware(app)
+
+    # 挂在静态目录
+    # register_static(app)
+
+    # 引入应用中的路由
+    # register_router(app)
+
+    # 加载系统路由
+    register_system_router(app)
     # 如果配置了跨域，使用 CORSMiddleware 中间件来解决跨域问题。
     if settings.CORS_ORIGIN_ENABLE:
         app.add_middleware(
@@ -68,8 +90,8 @@ def create_app():
             allow_headers=settings.ALLOW_HEADERS
         )
     # 此外，如果启用了静态文件服务，使用 StaticFiles 中间件来挂载静态目录。
-    if settings.STATIC_ENABLE:
-        app.mount(settings.STATIC_URL, app=StaticFiles(directory=settings.STATIC_ROOT))
+    if settings.settings.system.STATIC_ENABLE:
+        app.mount(settings.settings.system.STATIC_URL, app=StaticFiles(directory=settings.settings.system.STATIC_PATH))
     # 引入应用中的路由
     for url in urls.urlpatterns:
         # 最后，使用 include_router 方法来引入应用程序中的路由。
@@ -81,8 +103,6 @@ def create_app():
 
 @shell_app.command()
 def run(
-        host: str = typer.Option(default='0.0.0.0', help='监听主机IP，默认开放给本网络所有主机'),
-        port: int = typer.Option(default=9000, help='监听端口'),
         reload: bool = typer.Option(default=False, help='是否启用热加载')
 ):
     """
@@ -90,13 +110,15 @@ def run(
     :return:
     """
     click.echo(settings.BANNER)
+    host = str(settings.settings.system.SERVER_HOST)
+    port = settings.settings.system.SERVER_PORT
     server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
     serving_str = f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]"
     serving_str += f"\n\n[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]"
     serving_str += f"\n\n[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
     panel = Panel(
         serving_str,
-        title=f"{settings.PROJECT_NAME}",
+        title=f"{settings.settings.system.PROJECT_NAME}",
         expand=False,
         padding=(1, 2),
         style="black on yellow",

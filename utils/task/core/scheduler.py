@@ -20,7 +20,7 @@ from apscheduler.job import Job
 from .listener import before_job_execution
 from apscheduler.events import EVENT_JOB_EXECUTED
 from application.settings import MONGO_DB_NAME, SCHEDULER_TASK_JOBS, TASKS_ROOT
-from core.mongo import get_database
+from .mongo import get_database
 
 
 class Scheduler:

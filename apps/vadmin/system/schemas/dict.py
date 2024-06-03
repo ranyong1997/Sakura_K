@@ -19,7 +19,7 @@ DictDetailsSimpleOut类：继承自DictDatails类，同时增加了id（自增�
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class DictType(BaseModel):

@@ -9,7 +9,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 from .issue import IssueSimpleOut
 
 

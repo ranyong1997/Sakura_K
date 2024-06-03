@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
 from apps.vadmin.auth.schemas import UserLoginName
 from apps.vadmin.autotest.project.schemas import ProjectListOut
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Module(BaseModel):

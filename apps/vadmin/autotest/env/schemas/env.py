@@ -10,7 +10,7 @@ from typing import List
 from pydantic import BaseModel, ConfigDict
 
 from apps.vadmin.auth.schemas import UserLoginName
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Header(BaseModel):

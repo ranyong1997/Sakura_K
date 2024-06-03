@@ -15,7 +15,7 @@ from typing import List
 
 import xlsxwriter
 
-from application.settings import STATIC_ROOT, STATIC_URL
+from application.settings import settings
 from utils.file.file_base import FileBase
 from pathlib import Path
 
@@ -126,8 +126,8 @@ class WriteXlsx:
         if not self.file_path:
             raise ValueError("还未创建文件,请先创建excel文件!")
         assert isinstance(self.file_path, str)
-        if self.file_path.startswith(STATIC_ROOT):
-            return self.file_path.replace(STATIC_ROOT, STATIC_URL)
+        if self.file_path.startswith(settings.system.STATIC_PATH):
+            return self.file_path.replace(settings.system.STATIC_PATH, settings.system.STATIC_URL)
         else:
             print("write_xlsx 生成文件:", self.file_path)
             raise ValueError("生成文件为临时文件,无法访问!")

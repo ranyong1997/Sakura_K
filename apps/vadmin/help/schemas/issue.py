@@ -10,7 +10,7 @@
 from pydantic import BaseModel, ConfigDict
 
 from apps.vadmin.auth.schemas import UserSimpleOut
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 from .issue_category import IssueCategorySimpleOut
 
 

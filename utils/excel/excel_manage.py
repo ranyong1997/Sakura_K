@@ -15,7 +15,7 @@ from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
-from application.settings import STATIC_ROOT, STATIC_URL
+from application.settings import settings
 from utils.file.file_base import FileBase
 from .excel_schema import AlignmentModel, FontModel, PatternFillModel
 
@@ -160,7 +160,7 @@ class ExcelManage:
         self.wb.save(file_path)
         return {
             "local_path": file_path,
-            "remote_path": file_path.replace(STATIC_ROOT, STATIC_URL)
+            "remote_path": file_path.replace(settings.system.STATIC_PATH, settings.system.STATIC_URL)
         }
 
     def __set_row_style(

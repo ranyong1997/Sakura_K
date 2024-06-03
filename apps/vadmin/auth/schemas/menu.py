@@ -21,7 +21,7 @@ TreeListOut类继承自MenuSimpleOut类，并新增了children属性，表示该
 
 from pydantic import BaseModel, ConfigDict
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Menu(BaseModel):

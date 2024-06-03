@@ -19,14 +19,13 @@ from redis.asyncio import Redis
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-
-from application.settings import STATIC_ROOT, REDIS_DB_ENABLE, SUBSCRIBE
+from application.settings import REDIS_DB_ENABLE, SUBSCRIBE, settings
 from core.crud import DalBase
 from core.database import redis_getter
 from core.exception import CustomException
-from core.mongo_manage import MongoManage
 from utils import status
 from utils.file.file_manage import FileManage
+from utils.task.core.mongo import MongoManage
 from . import models, schemas
 
 
@@ -111,7 +110,7 @@ class SettingsDal(DalBase):
                 if ico.config_value == web_ico:
                     continue
                 # 将上传的ico路径替换到static/system/favicon.ico文件
-                await FileManage.async_copy_file(value, os.path.join(STATIC_ROOT, "system/favicon.ico"))
+                await FileManage.async_copy_file(value, os.path.join(settings.system.STATIC_PATH, "system/favicon.ico"))
                 sql = update(self.model).where(self.model.config_key == "web_ico").values(config_value=web_ico)
                 await self.db.execute(sql)
             else:
@@ -527,5 +526,3 @@ def deocde_web_urls(web_urls_after_base64):
     # 分割
     web_urls = web_urls_str.split(",")
     return web_urls
-
-

@@ -14,8 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from application.settings import DEFAULT_AUTH_ERROR_MAX_NUMBER, DEMO, REDIS_DB_ENABLE
 from apps.vadmin.auth import crud, schemas
 from core.database import redis_getter
-from core.validator import vali_telephone
 from utils.count import Count
+from utils.validator import vali_telephone
 
 
 class LoginForm(BaseModel):

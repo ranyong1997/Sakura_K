@@ -6,12 +6,14 @@
 # @File    : response.py
 # @Software: PyCharm
 # @desc    : 响应
-# 赖安装：pip install orjson
-
+from pydantic import BaseModel, Field
 from fastapi import status as http_status
 from fastapi.responses import ORJSONResponse as Response
-
+from typing import Generic, TypeVar
 from utils import status as http
+from utils.response_code import Status
+
+DataT = TypeVar("DataT")
 
 
 class SuccessResponse(Response):
@@ -42,3 +44,13 @@ class ErrorResponse(Response):
         }
         self.data.update(kwargs)
         super().__init__(content=self.data, status_code=status)
+
+
+class ErrorResponseSchema(BaseModel, Generic[DataT]):
+    """
+    默认请求失败响应模型
+    """
+
+    code: int = Field(Status.HTTP_ERROR, description="响应状态码（响应体内）")
+    message: str = Field("请求失败，请联系管理员", description="响应结果描述")
+    data: DataT = Field(None, description="响应结果数据")

@@ -6,26 +6,31 @@
 # @File    : event.py
 # @Software: PyCharm
 # @desc    : 全局事件
-
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis import asyncio as aioredis
 from redis.exceptions import AuthenticationError, TimeoutError, RedisError
 from sqlalchemy.exc import ProgrammingError
-
 from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
-from core.logger import logger
+from core.logger import logger, log
+from db.database_factory import DatabaseFactory
+from task.main import scheduled_task
 from utils.cache import Cache
-from utils.tools import import_modules_async
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await import_modules_async(EVENTS, "全局事件", app=app, status=True)
-    yield
-    await import_modules_async(EVENTS, "全局事件", app=app, status=False)
+async def close_db_event(app: FastAPI, status: bool):
+    """
+    关闭数据库连接事件
+    :param app:
+    :param status: 用于判断是开始还是结束事件，为 True 说明是开始事件，反着关闭事件
+    :return:
+    """
+    if status:
+        log.info("启动项目事件成功执行！")
+    else:
+        await DatabaseFactory.clear()
+        scheduled_task.shutdown()
+        log.info("关闭项目事件成功执行！")
 
 
 async def connect_redis(app: FastAPI, status: bool):

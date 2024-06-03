@@ -22,7 +22,7 @@ SMSSendRecordSimpleOut 的 Config 类中设置了 orm_mode = True，这表示该
 
 from pydantic import BaseModel, ConfigDict
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class SMSSendRecord(BaseModel):

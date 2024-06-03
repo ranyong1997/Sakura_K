@@ -8,7 +8,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Dept(BaseModel):

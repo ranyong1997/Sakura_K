@@ -9,7 +9,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Redbook(BaseModel):

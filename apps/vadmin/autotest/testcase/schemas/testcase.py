@@ -9,7 +9,7 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Variable(BaseModel):

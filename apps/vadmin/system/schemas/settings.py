@@ -18,7 +18,7 @@ SettingsSimpleOut类继承了Settings类，并增加了id（自增主键）、cr
 
 from pydantic import BaseModel, ConfigDict
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class Settings(BaseModel):

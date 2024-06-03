@@ -12,8 +12,7 @@ import random
 import re
 import string
 from typing import List, Union
-
-from core.logger import logger
+from core.logger import log
 
 
 def test_password(password: str) -> Union[str, bool]:
@@ -74,28 +73,40 @@ def generate_string(length: int = 8) -> str:
 
 
 def import_modules(modules: list, desc: str, **kwargs):
+    """
+    通过反射执行方法
+    :param modules:
+    :param desc:
+    :param kwargs:
+    :return:
+    """
     for module in modules:
         if not module:
             continue
         try:
-            # 动态导入模块
-            module_pag = importlib.import_module(module[0:module.rindex(".")])
+            module_pag = importlib.import_module(module[0: module.rindex(".")])
             getattr(module_pag, module[module.rindex(".") + 1:])(**kwargs)
-        except ModuleNotFoundError:
-            logger.error(f"AttributeError：导入{desc}失败，未找到该模块：{module}")
-        except AttributeError:
-            logger.error(f"ModuleNotFoundError：导入{desc}失败，未找到该模块下的方法：{module}")
+        except ModuleNotFoundError as e:
+            log.error(f"AttributeError：导入{desc}失败，模块：{module}，详细报错信息：{e}")
+        except AttributeError as e:
+            log.error(f"ModuleNotFoundError：导入{desc}失败，模块方法：{module}，详细报错信息：{e}")
 
 
 async def import_modules_async(modules: list, desc: str, **kwargs):
+    """
+    通过反射执行异步方法
+    :param modules:
+    :param desc:
+    :param kwargs:
+    :return:
+    """
     for module in modules:
         if not module:
             continue
         try:
-            # 动态导入模块
-            module_pag = importlib.import_module(module[0:module.rindex(".")])
+            module_pag = importlib.import_module(module[0: module.rindex(".")])
             await getattr(module_pag, module[module.rindex(".") + 1:])(**kwargs)
-        except ModuleNotFoundError:
-            logger.error(f"AttributeError：导入{desc}失败，未找到该模块：{module}")
-        except AttributeError:
-            logger.error(f"ModuleNotFoundError：导入{desc}失败，未找到该模块下的方法：{module}")
+        except ModuleNotFoundError as e:
+            log.error(f"AttributeError：导入{desc}失败，模块：{module}，详细报错信息：{e}")
+        except AttributeError as e:
+            log.error(f"ModuleNotFoundError：导入{desc}失败，模块方法：{module}，详细报错信息：{e}")

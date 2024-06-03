@@ -9,7 +9,7 @@
 import datetime
 import os.path
 
-from application.settings import BASE_DIR
+from application.settings import settings
 
 
 class CreateApp:
@@ -17,8 +17,8 @@ class CreateApp:
     代码解释：
     定义了一个 CreateApp 类，并创建了两个常量：APPS_ROOT 和 SCRIPT_DIR。APPS_ROOT
     """
-    APPS_ROOT = os.path.join(BASE_DIR, "apps")
-    SCRIPT_DIR = os.path.join(BASE_DIR, "scripts", "create_app")
+    APPS_ROOT = os.path.join(settings.system.BASE_PATH, "apps")
+    SCRIPT_DIR = os.path.join(settings.system.BASE_PATH, "scripts", "create_app")
 
     def __init__(self, path: str):
         """

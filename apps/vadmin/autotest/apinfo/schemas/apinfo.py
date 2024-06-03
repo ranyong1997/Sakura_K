@@ -10,7 +10,7 @@
 from typing import Dict, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 from utils.sakurarunner.models.base import BodyType
 
 

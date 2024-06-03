@@ -24,7 +24,6 @@ from apps.vadmin.help import models as vadmin_help_models
 from apps.vadmin.system import crud as vadmin_system_crud
 from core.crud import DalBase
 from core.exception import CustomException
-from core.validator import vali_telephone
 from utils import status
 from utils.excel.excel_manage import ExcelManage
 from utils.excel.import_manage import ImportManage, FieldType
@@ -33,6 +32,7 @@ from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.send_email import EmailSender
 from utils.sms.reset_passwd import ResetPasswordSMS
 from utils.tools import test_password
+from utils.validator import vali_telephone
 from utils.wx.oauth import WXOAuth
 from . import models, schemas
 from .params import UserParams

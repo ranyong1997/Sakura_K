@@ -9,7 +9,7 @@
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from core.data_types import DatetimeStr, ObjectIdStr
+from core.types import DatetimeStr, ObjectIdStr
 
 
 class Task(BaseModel):

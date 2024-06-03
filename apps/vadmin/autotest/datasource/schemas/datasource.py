@@ -8,7 +8,7 @@
 from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
 from apps.vadmin.auth.schemas import UserLoginName
-from core.data_types import DatetimeStr
+from core.types import DatetimeStr
 
 
 class DataSource(BaseModel):

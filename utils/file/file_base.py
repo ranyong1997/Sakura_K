@@ -13,7 +13,7 @@ from pathlib import Path
 from aiopathlib import AsyncPath
 from fastapi import UploadFile
 
-from application.settings import TEMP_DIR, STATIC_ROOT
+from application.settings import settings
 from core.exception import CustomException
 from utils import status
 from utils.tools import generate_string
@@ -76,7 +76,7 @@ class FileBase:
         :param suffix: 文件后缀
         :return:
         """
-        return f"{STATIC_ROOT}/{cls.generate_relative_path(path, filename, suffix)}"
+        return f"{settings.system.STATIC_PATH}/{cls.generate_relative_path(path, filename, suffix)}"
 
     @classmethod
     def generate_temp_file_path(cls, filename: str = None, suffix: str = None) -> str:
@@ -101,7 +101,7 @@ class FileBase:
         :return:
         """
         date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
-        file_dir = Path(TEMP_DIR) / date
+        file_dir = Path(settings.system.TEMP_PATH) / date
         if not file_dir.exists():
             file_dir.mkdir(parents=True, exist_ok=True)
         return str(file_dir).replace("\\", "/")
@@ -122,7 +122,7 @@ class FileBase:
         :return:
         """
         date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
-        file_dir = AsyncPath(TEMP_DIR) / date
+        file_dir = AsyncPath(settings.system.TEMP_PATH) / date
         path = file_dir / (generate_string(4) + str(int(datetime.datetime.now().timestamp())))
         if not await path.exists():
             await path.mkdir(parents=True, exist_ok=True)
