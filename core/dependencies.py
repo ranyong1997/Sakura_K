@@ -12,7 +12,7 @@
 
 import copy
 
-from fastapi import Body
+from fastapi import Body, Query
 
 
 class QueryParams:
@@ -48,7 +48,13 @@ class Paging(QueryParams):
     列表分页
     """
 
-    def __init__(self, page: int = 1, limit: int = 20, v_order_field: str = None, v_order: str = None):
+    def __init__(
+            self,
+            page: int = Query(1, description="当前页数"),
+            limit: int = Query(20, description="每页多少条数据"),
+            v_order_field: str = Query(None, description="排序字段"),
+            v_order: str = Query(None, description="排序规则")
+    ):
         super().__init__()
         self.page = page
         self.limit = limit
