@@ -40,6 +40,64 @@ async def get_apinfo_list(p: params.ApInfoParams = Depends(), auth: Auth = Depen
 
 @app.post("/addapi", summary="新增接口")
 async def add_apinfo(data: schemas.ApiInfo, auth: Auth = Depends(AllUserAuth())):
+    """
+    示例数据：
+
+        {
+          "api_name": "请求头 选择 json 类型传值",
+          "project_id": 1,
+          "module_id": 1,
+          "status": 1,
+          "priority": 3,
+          "method": "GET",
+          "tags": [
+            "string"
+          ],
+          "url": "string",
+          "description": "string",
+          "request": {
+            "data_type": "json",
+            "data": {
+              "age": "109"
+            },
+            "method": "POST",
+            "url": "http://127.0.0.1:9000/",
+            "headers": [
+              {
+                "key": "id3",
+                "value": "3",
+                "remarks": "这是请求头的一个id3"
+              },
+              {
+                "key": "id2",
+                "value": "2",
+                "remarks": "这是请求头的一个id2"
+              },
+              {
+                "key": "id1",
+                "value": "1",
+                "remarks": "这是请求头的一个id1"
+              }
+            ]
+          },
+          "variables": [
+            {}
+          ],
+          "validators": [
+            {}
+          ],
+          "extracts": [
+            {}
+          ],
+          "setup_hooks": [
+            {}
+          ],
+          "teardown_hooks": [
+            {}
+          ],
+          "create_user_id": 1
+        }
+    """
     data.create_user_id = auth.user.id
     return SuccessResponse(await crud.ApInfoDal(auth.db).create_data(data=data))
 
