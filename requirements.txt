@@ -98,6 +98,7 @@ zipp==3.17.0
 zope.event==5.0
 zope.interface==6.1
 Apscheduler==3.10.1
+pydantic-settings==2.2.1
 
 requests_toolbelt==1.0.0
 filetype==1.2.0

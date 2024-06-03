@@ -9,6 +9,7 @@
 import os
 
 from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是用于在 OAuth2 鉴权方式下获取访问令牌的类。
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
 """
 系统版本
@@ -234,3 +235,30 @@ PROJECT_DESCRIPTION: str = """
 项目名称
 """
 PROJECT_NAME: str = "Sakura_K"
+
+
+class Settings(BaseSettings):
+    """
+    官方文档：https://docs.pydantic.dev/latest/concepts/pydantic_settings/#installation
+
+    字段值优先级
+    在多种方式指定同一个设置字段的值的情况下，选定值的确定顺序如下（按优先级降序排列）：
+
+    1. init_settings：传递给 BaseSettings 类构造函数的参数
+    2. env_settings：环境变量，例如上述的 my_prefix_special_function。
+    3. dotenv_settings：从 dotenv（.env）文件加载的变量。
+    4. settings_cls：BaseSettings 模型的默认字段值。
+    """
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @classmethod
+    def settings_customise_sources(
+            cls,
+            settings_cls: type[BaseSettings],
+            init_settings: PydanticBaseSettingsSource,
+            env_settings: PydanticBaseSettingsSource,
+            dotenv_settings: PydanticBaseSettingsSource,
+            file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return init_settings, env_settings, dotenv_settings
