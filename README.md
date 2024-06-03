@@ -40,10 +40,23 @@ Redis (推荐使用最新稳定版)
 ```
 
 ### 后端
-
+#### 首次使用
 1. 安装依赖
+```python
+# 安装依赖库
+python3 venv venv
+# 激活虚拟环境
+>> mac 激活
+# 待补充
+>> win 激活
+# 待补充
+pip3 install poetry -i https://mirrors.aliyun.com/pypi/simple/
+poetry install
+```
 
-```text
+1. ~~安装依赖(适合pyenv和virtual env)~~
+
+```python
 pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
