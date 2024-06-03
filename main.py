@@ -19,6 +19,9 @@ import click
 import typer
 import uvicorn
 from fastapi import FastAPI
+from rich.padding import Padding
+from rich.panel import Panel
+from rich import print
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
 
@@ -87,6 +90,18 @@ def run(
     :return:
     """
     click.echo(settings.BANNER)
+    server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
+    serving_str = f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]"
+    serving_str += f"\n\n[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]"
+    serving_str += f"\n\n[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
+    panel = Panel(
+        serving_str,
+        title=f"{settings.PROJECT_NAME}",
+        expand=False,
+        padding=(1, 2),
+        style="black on yellow",
+    )
+    print(Padding(panel, 1))
     uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True, reload=reload)
 
 

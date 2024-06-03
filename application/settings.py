@@ -229,3 +229,8 @@ PROJECT_DESCRIPTION: str = """
 - 联系我: ![微信二维码](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F4bb5e771-42f5-47ce-952b-c122c611905a%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1701941750&t=3271891773bfa092923625a10c2cc7d5)
 </details>
 """
+
+"""
+项目名称
+"""
+PROJECT_NAME: str = "Sakura_K"
