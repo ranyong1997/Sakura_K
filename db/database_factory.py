@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2024/6/3 21:51
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : database_factory.py
 # @Software: PyCharm
-# @desc    :
-
+# @desc    : 数据库工厂类
 from typing import Literal
-
 from db.async_base import AsyncAbstractDatabase
+from db.mongo.asyncio import MongoDatabase
+from db.orm.asyncio import ORMDatabase
+from db.redis.asyncio import RedisDatabase
 from utils.singleton import Singleton
 
 
@@ -38,7 +39,7 @@ class DatabaseFactory(metaclass=Singleton):
 
     @classmethod
     def get_db_instance(
-            cls, db_type: Literal["orm", "mongo", "redis"], *, loader_name: str = "default", db_url: str = None
+        cls, db_type: Literal["orm", "mongo", "redis"], *, loader_name: str = "default", db_url: str = None
     ) -> AsyncAbstractDatabase:
         """
         获取指定类型和加载器名称的数据库实例，如果实例不存在则创建并加载到配置加载器
