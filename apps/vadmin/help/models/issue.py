@@ -9,12 +9,11 @@
 
 from sqlalchemy import String, Boolean, Integer, ForeignKey, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
 from apps.vadmin.auth.models import VadminUser
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 
 
-class VadminIssueCategory(BaseModel):
+class VadminIssueCategory(AbstractORMModel):
     __tablename__ = "vadmin_help_issue_category"
     __table_args__ = ({'comment': '常见问题类别表'})
 
@@ -30,7 +29,7 @@ class VadminIssueCategory(BaseModel):
     create_user: Mapped[VadminUser] = relationship(foreign_keys=create_user_id)
 
 
-class VadminIssue(BaseModel):
+class VadminIssue(AbstractORMModel):
     __tablename__ = "vadmin_help_issue"
     __table_args__ = ({'comment': '常见问题记录表'})
 

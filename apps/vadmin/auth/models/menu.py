@@ -9,11 +9,10 @@
 
 from sqlalchemy import String, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
+from apps.models.base.orm import AbstractORMModel
 
-from db.db_base import BaseModel
 
-
-class VadminMenu(BaseModel):
+class VadminMenu(AbstractORMModel):
     __tablename__ = "vadmin_auth_menu"
     __table_args__ = ({'comment': '菜单表'})
 

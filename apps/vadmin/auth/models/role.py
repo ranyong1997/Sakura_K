@@ -10,13 +10,13 @@
 from sqlalchemy import String, Boolean, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 from .dept import VadminDept
 from .m2m import vadmin_auth_role_menus, vadmin_auth_role_depts
 from .menu import VadminMenu
 
 
-class VadminRole(BaseModel):
+class VadminRole(AbstractORMModel):
     __tablename__ = "vadmin_auth_role"
     __table_args__ = ({'comment': '角色表'})
 

@@ -19,9 +19,8 @@ from redis.asyncio import Redis
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from application.settings import REDIS_DB_ENABLE, SUBSCRIBE, settings
+from application.settings import settings
 from core.crud import DalBase
-from core.database import redis_getter
 from core.exception import CustomException
 from utils import status
 from utils.file.file_manage import FileManage
@@ -116,10 +115,10 @@ class SettingsDal(DalBase):
             else:
                 sql = update(self.model).where(self.model.config_key == str(key)).values(config_value=value)
                 await self.db.execute(sql)
-        if "wx_server_app_id" in datas and REDIS_DB_ENABLE:
+        if "wx_server_app_id" in datas and settings.db.REDIS_DB_ENABLE:
             rd = redis_getter(request)
             await rd.client().set("wx_server", json.dumps(datas))
-        elif "sms_access_key" in datas and REDIS_DB_ENABLE:
+        elif "sms_access_key" in datas and settings.db.REDIS_DB_ENABLE:
             rd = redis_getter(request)
             await rd.client().set("aliyun_sms", json.dumps(datas))
 

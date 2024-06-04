@@ -11,7 +11,10 @@ import importlib
 import random
 import re
 import string
+import subprocess
 from typing import List, Union
+
+from core.exception import CustomException
 from core.logger import log
 
 
@@ -72,6 +75,30 @@ def generate_string(length: int = 8) -> str:
     return ''.join(random.sample(string.ascii_letters + string.digits, length))
 
 
+def exec_shell_command(
+        command: str, error_text: str = "命令执行失败", cwd: str = None, shell: bool = True, check: bool = False
+) -> str:
+    """
+    执行 shell 命令
+    :param command:
+    :param error_text: 报错时的文本输出内容
+    :param cwd: 命令执行工作目录
+    :param shell:
+        当 shell=True 时，Python 将使用系统的默认 shell（比如在 Windows 下是 cmd.exe，而在 Unix/Linux 下是 /bin/sh）来执行指定的命令。
+        当 shell=False 时，Python 直接执行指定的命令，不经过 shell 解释器。
+        使用 shell=True 时，你可以像在命令行中一样使用一些特殊的 shell 功能，比如重定向 (>)、管道 (|) 等。
+        但要注意，使用 shell=True 也可能存在一些安全风险，因为它可以执行更复杂的命令，并且可能受到 shell 注入攻击的影响。
+    :param check: 是否忽略错误
+    :return:
+    """  # noqa: E501
+    result = subprocess.run([item for item in command.split(" ")], shell=shell, capture_output=True, text=True, cwd=cwd)
+    if result.returncode != 0 and not check:
+        raise CustomException(
+            f"{error_text}，执行命令：{command}，结果 Code：{result.returncode}，报错内容：{result.stdout}"
+        )
+    return result.stdout
+
+
 def import_modules(modules: list, desc: str, **kwargs):
     """
     通过反射执行方法
@@ -110,3 +137,15 @@ async def import_modules_async(modules: list, desc: str, **kwargs):
             log.error(f"AttributeError：导入{desc}失败，模块：{module}，详细报错信息：{e}")
         except AttributeError as e:
             log.error(f"ModuleNotFoundError：导入{desc}失败，模块方法：{module}，详细报错信息：{e}")
+
+
+def ruff_format_code():
+    """
+    使用 ruff 格式化生成的代码
+    """
+    try:
+        exec_shell_command("ruff check --fix", check=True)
+        exec_shell_command("ruff format", check=True)
+        log.info("已完成代码格式化")
+    except Exception as e:
+        log.error(f"代码格式化失败: {e}")

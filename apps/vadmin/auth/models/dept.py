@@ -7,11 +7,10 @@
 # @Desc     : 部门模型
 from sqlalchemy import String, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
+from apps.models.base.orm import AbstractORMModel
 
-from db.db_base import BaseModel
 
-
-class VadminDept(BaseModel):
+class VadminDept(AbstractORMModel):
     __tablename__ = "vadmin_auth_dept"
     __table_args__ = ({'comment': '部门表'})
 

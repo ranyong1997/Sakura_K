@@ -12,8 +12,7 @@ from datetime import datetime
 from passlib.context import CryptContext
 from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 from .dept import VadminDept
 from .m2m import vadmin_auth_user_roles, vadmin_auth_user_depts
 from .role import VadminRole
@@ -21,7 +20,7 @@ from .role import VadminRole
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
-class VadminUser(BaseModel):
+class VadminUser(AbstractORMModel):
     __tablename__ = "vadmin_auth_user"
     __table_args__ = ({'comment': '用户表'})
 
