@@ -29,3 +29,24 @@ from apps.vadmin.autotest.report.models import *
 from apps.vadmin.autotest.testcase.models import *
 ```
 
+
+## 介绍
+
+官方文档：https://alembic.sqlalchemy.org/en/latest/tutorial.html#creating-an-environment
+
+## 创建环境命令
+
+```shell
+alembic init --template async ./alembic
+```
+
+## 数据库迁移
+
+```shell
+alembic revision --autogenerate
+alembic upgrade head
+
+# 或
+
+python3 main.py migrate
+```

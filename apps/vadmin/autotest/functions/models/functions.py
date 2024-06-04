@@ -9,10 +9,10 @@ from sqlalchemy import String, Integer, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from apps.vadmin.auth.models import VadminUser
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 
 
-class FunctionsInfo(BaseModel):
+class FunctionsInfo(AbstractORMModel):
     __tablename__ = "functions"
     __table_args__ = ({'comment': '自定义函数表'})
 

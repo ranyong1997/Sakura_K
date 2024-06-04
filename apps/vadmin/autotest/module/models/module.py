@@ -11,10 +11,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from apps.vadmin.auth.models import VadminUser
 from apps.vadmin.autotest.project.models import ProjectInfo
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 
 
-class ModuleInfo(BaseModel):
+class ModuleInfo(AbstractORMModel):
     __tablename__ = "module_info"
     __table_args__ = ({'comment': '模块列表'})
 

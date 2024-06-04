@@ -6,8 +6,8 @@
 # @File    : auth_role_model.py
 # @Software: PyCharm
 # @desc    : 角色表
-from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import String
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from apps.models.auth_user_to_role_model import auth_user_to_role_model
 from apps.models.base.orm import AbstractORMModel
 

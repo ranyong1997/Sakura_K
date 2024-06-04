@@ -7,11 +7,9 @@
 # @Software: PyCharm
 # @desc    : 用户表
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-
-from sqlalchemy import String
-
-from apps.models.auth_user_to_role_model import auth_user_to_role_model
 from apps.models.base.orm import AbstractORMModel
+from sqlalchemy import String
+from apps.models.auth_user_to_role_model import auth_user_to_role_model
 
 
 class AuthUserModel(AbstractORMModel):

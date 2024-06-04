@@ -10,10 +10,10 @@
 from sqlalchemy import String, Integer, ForeignKey, Boolean, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 
 
-class VadminSystemSettingsTab(BaseModel):
+class VadminSystemSettingsTab(AbstractORMModel):
     __tablename__ = "vadmin_system_settings_tab"
     __table_args__ = ({'comment': '系统配置分类表'})
 
@@ -27,7 +27,7 @@ class VadminSystemSettingsTab(BaseModel):
     settings: Mapped[list["VadminSystemSettings"]] = relationship(back_populates="tab")
 
 
-class VadminSystemSettings(BaseModel):
+class VadminSystemSettings(AbstractORMModel):
     __tablename__ = "vadmin_system_settings"
     __table_args__ = ({'comment': '系统配置表'})
 

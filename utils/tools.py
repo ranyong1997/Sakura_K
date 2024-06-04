@@ -75,8 +75,21 @@ def generate_string(length: int = 8) -> str:
     return ''.join(random.sample(string.ascii_letters + string.digits, length))
 
 
+def snake_to_camel(name: str) -> str:
+    """
+    将下划线命名（snake_case）转换为大驼峰命名（CamelCase）
+    根据下划线分割，然后将字符串转为第一个字符大写后拼接
+    :param name: 下划线命名（snake_case）
+    :return:
+    """
+    # 按下划线分割字符串
+    words = name.split("_")
+    # 将每个单词的首字母大写，然后拼接
+    return "".join(word.capitalize() for word in words)
+
+
 def exec_shell_command(
-        command: str, error_text: str = "命令执行失败", cwd: str = None, shell: bool = True, check: bool = False
+        command: str, error_text: str = "命令执行失败", cwd: str = None, shell: bool = False, check: bool = False
 ) -> str:
     """
     执行 shell 命令

@@ -109,32 +109,6 @@ def create_app():
     return app
 
 
-# @shell_app.command()
-# def run(
-#         reload: bool = typer.Option(default=False, help='是否启用热加载')
-# ):
-#     """
-#     启动项目
-#     :return:
-#     """
-#     click.echo(settings.BANNER)
-#     host = str(settings.settings.system.SERVER_HOST)
-#     port = settings.settings.system.SERVER_PORT
-#     server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
-#     serving_str = f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]"
-#     serving_str += f"\n\n[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]"
-#     serving_str += f"\n\n[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
-#     panel = Panel(
-#         serving_str,
-#         title=f"{settings.settings.system.PROJECT_NAME}",
-#         expand=False,
-#         padding=(1, 2),
-#         style="black on yellow",
-#     )
-#     print(Padding(panel, 1))
-#     uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True, reload=reload)
-
-
 @shell_app.command()
 def run(reload: bool = typer.Option(default=False, help="是否自动重载")):
     """
@@ -156,7 +130,21 @@ def run(reload: bool = typer.Option(default=False, help="是否自动重载")):
     from application import settings
 
     sys.path.append(os.path.abspath(__file__))
-
+    click.echo(settings.BANNER)
+    host = str(settings.settings.system.SERVER_HOST)
+    port = settings.settings.system.SERVER_PORT
+    server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
+    serving_str = f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]"
+    serving_str += f"\n\n[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]"
+    serving_str += f"\n\n[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
+    panel = Panel(
+        serving_str,
+        title=f"{settings.settings.system.PROJECT_NAME}",
+        expand=False,
+        padding=(1, 2),
+        style="black on yellow",
+    )
+    print(Padding(panel, 1))
     uvicorn.run(
         app="main:create_app",
         host=str(settings.settings.system.SERVER_HOST),

@@ -31,3 +31,4 @@ logs/*
 utils/xhs/Download
 static/system
 utils/task/logs
+alembic/versions/*

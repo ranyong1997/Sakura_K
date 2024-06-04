@@ -1,20 +1,22 @@
-import os
+import asyncio
 import sys
 from logging.config import fileConfig
-
-from alembic import context
-from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from core.database import Base
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+from application.settings import settings
+from db.orm.async_base_model import AsyncBaseORMModel
+
 config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-fileConfig(config.config_file_name)
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -28,47 +30,28 @@ fileConfig(config.config_file_name)
 # ... etc.
 
 # 添加当前项目路径到环境变量
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
+sys.path.append(settings.system.BASE_PATH)
 
-# 导入项目中的基本映射类，与 需要迁移的 ORM 模型，不添加会初始化失败
-# from apps.vadmin.auth.models import *
-# from apps.vadmin.system.models import *
-# from apps.vadmin.record.models import *
-# from apps.vadmin.help.models import *
-# from apps.vadmin.resource.models import *
-# from apps.vadmin.redbook.models import *
-# from apps.vadmin.autotest.project.models import *
-# from apps.vadmin.autotest.module.models import *
-# from apps.vadmin.autotest.apinfo.models import *
-# from apps.vadmin.autotest.datasource.models import *
-# from apps.vadmin.autotest.env.models import *
-# from apps.vadmin.autotest.functions.models import *
-# from apps.vadmin.autotest.report.models import *
-# from apps.vadmin.autotest.testcase.models import *
-
-from apps.vadmin.auth.models import *
-from apps.vadmin.system.models import *
-from apps.vadmin.record.models import *
-from apps.vadmin.help.models import *
-from apps.vadmin.resource.models import *
-from apps.vadmin.redbook.models import *
-from apps.vadmin.autotest.project.models import *
-from apps.vadmin.autotest.module.models import *
-from apps.vadmin.autotest.apinfo.models import *
-from apps.vadmin.autotest.datasource.models import *
-from apps.vadmin.autotest.env.models import *
-from apps.vadmin.autotest.functions.models import *
-from apps.vadmin.autotest.report.models import *
-from apps.vadmin.autotest.testcase.models import *
+# 导入项目中的基本映射类，与 需要迁移的 ORM 模型
+from apps.models import *
 
 # 修改配置中的参数
-target_metadata = Base.metadata
+target_metadata = AsyncBaseORMModel.metadata
+
+config.set_main_option('sqlalchemy.url', settings.db.ORM_DATABASE_URL.unicode_string())
 
 
-def run_migrations_offline():
-    """
-    以“脱机”模式运行迁移。
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode.
+
+    This configures the context with just a URL
+    and not an Engine, though an Engine is acceptable
+    here as well.  By skipping the Engine creation
+    we don't even need a DBAPI to be available.
+
+    Calls to context.execute() here emit the given string to the
+    script output.
+
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -76,39 +59,44 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        compare_type=True,  # 是否检查字段类型，字段长度
-        compare_server_default=True  # 是否比较在数据库中的默认值
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online():
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata)
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """In this scenario we need to create an Engine
+    and associate a connection with the context.
+
     """
-    以“在线”模式运行迁移。
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+
+    connectable = async_engine_from_config(
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,  # 是否检查字段类型，字段长度
-            compare_server_default=True  # 是否比较在数据库中的默认值
-        )
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
 
-        with context.begin_transaction():
-            context.run_migrations()
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():
-    print("offline")
     run_migrations_offline()
 else:
-    print("online")
     run_migrations_online()

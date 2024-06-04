@@ -10,10 +10,10 @@
 from sqlalchemy import String, Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from db.db_base import BaseModel
+from apps.models.base.orm import AbstractORMModel
 
 
-class VadminDictType(BaseModel):
+class VadminDictType(AbstractORMModel):
     __tablename__ = "vadmin_system_dict_type"
     __table_args__ = ({'comment': '字典类型表'})
 
@@ -24,7 +24,7 @@ class VadminDictType(BaseModel):
     details: Mapped[list["VadminDictDetails"]] = relationship(back_populates="dict_type")
 
 
-class VadminDictDetails(BaseModel):
+class VadminDictDetails(AbstractORMModel):
     __tablename__ = "vadmin_system_dict_details"
     __table_args__ = ({'comment': '字典详情表'})
 
