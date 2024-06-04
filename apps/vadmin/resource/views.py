@@ -15,7 +15,7 @@ from apps.vadmin.auth.utils.current import FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
 from utils.file.aliyun_oss import AliyunOSS, BucketConf
-from utils.response import SuccessResponse
+from utils.response import RestfulResponse
 from . import schemas, crud, params, models
 
 app = APIRouter()
@@ -35,7 +35,7 @@ async def get_images_list(p: params.ImagesParams = Depends(), auth: Auth = Depen
         v_schema=v_schema,
         v_return_count=True
     )
-    return SuccessResponse(datas, count=count)
+    return RestfulResponse.success(datas, count=count)
 
 
 @app.post("/images", summary="创建图片")
@@ -47,15 +47,15 @@ async def create_images(file: UploadFile, auth: Auth = Depends(FullAdminAuth()))
         image_url=result,
         create_user_id=auth.user.id
     )
-    return SuccessResponse(await crud.ImagesDal(auth.db).create_data(data=data))
+    return RestfulResponse.success(await crud.ImagesDal(auth.db).create_data(data=data))
 
 
 @app.delete("/images", summary="删除图片", description="硬删除")
 async def delete_images(ids: IdList = Depends(), auth: Auth = Depends(FullAdminAuth())):
     await crud.ImagesDal(auth.db).delete_datas(ids.ids, v_soft=False)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 @app.get("/images/{data_id}", summary="获取图片信息")
 async def get_images(data_id: int, auth: Auth = Depends(FullAdminAuth())):
-    return SuccessResponse(await crud.ImagesDal(auth.db).get_data(data_id, v_schema=schemas.ImagesSimpleOut))
+    return RestfulResponse.success(await crud.ImagesDal(auth.db).get_data(data_id, v_schema=schemas.ImagesSimpleOut))

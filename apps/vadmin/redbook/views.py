@@ -11,7 +11,7 @@ from sqlalchemy.orm import joinedload
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
-from utils.response import SuccessResponse
+from utils.response import RestfulResponse
 from utils.xhs.source import XHS
 from . import schemas, crud, params, models
 from .schemas import Links, RedBookConfig
@@ -47,7 +47,7 @@ async def getredbookdown(
                     except Exception as e:
                         print(f"插入URL出错: {e}, 作品ID: {redbook_id}, URL: {url}")
                         continue
-        return SuccessResponse(data)
+        return RestfulResponse.success(data)
 
 
 @app.post("/redbookdownmultiple", summary="获取小红书作品信息,支持批量下载")
@@ -97,7 +97,7 @@ async def getredbookdownmultiple(
                         await crud.UrlsDal(auth.db).create_batch_data_urls(red_book_id, url)
         except Exception as e:
             print(f"处理小红书url出错: {e}")
-        return SuccessResponse(data)
+        return RestfulResponse.success(data)
 
 
 ###########################################################
@@ -106,29 +106,29 @@ async def getredbookdownmultiple(
 @app.get("/geturls", summary="获取小红书无水印原链接")
 async def get_urls_list(p: params.UrlsParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     datas, count = await crud.UrlsDal(auth.db).get_datas(**p.dict(), v_return_count=True)
-    return SuccessResponse(datas, count=count)
+    return RestfulResponse.success(datas, count=count)
 
 
 @app.post("/createurls", summary="创建小红书无水印原链接")
 async def create_urls(data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.UrlsDal(auth.db).create_data(data=data))
+    return RestfulResponse.success(await crud.UrlsDal(auth.db).create_data(data=data))
 
 
 @app.put("/urls/{data_id}", summary="更新小红书无水印原链接")
 async def put_urls(data_id: int, data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.UrlsDal(auth.db).put_data(data_id, data))
+    return RestfulResponse.success(await crud.UrlsDal(auth.db).put_data(data_id, data))
 
 
 @app.delete("/delurls", summary="删除小红书无水印原链接", description="硬删除")
 async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 @app.delete("/softdelurls", summary="删除小红书无水印原链接", description="软删除")
 async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 ###########################################################
@@ -142,38 +142,38 @@ async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Dep
         v_options=v_options,
         v_return_count=True
     )
-    return SuccessResponse(datas, count=count)
+    return RestfulResponse.success(datas, count=count)
 
 
 @app.post("/createredbook", summary="创建小红书素材表")
 async def create_redbook(data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
-    return SuccessResponse(await crud.RedbookDal(auth.db).create_data(data=data))
+    return RestfulResponse.success(await crud.RedbookDal(auth.db).create_data(data=data))
 
 
 @app.put("/redbook/{data_id}", summary="更新小红书素材表")
 async def put_redbook(data_id: int, data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.RedbookDal(auth.db).put_data(data_id, data))
+    return RestfulResponse.success(await crud.RedbookDal(auth.db).put_data(data_id, data))
 
 
 @app.delete("/delredbook", summary="删除小红书素材表", description="硬删除")
 async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 @app.delete("/softdelredbook", summary="删除小红书素材表", description="软删除")
 async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 # @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 # async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
 #     schema = schemas.RedbookSimpleOut
-#     return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
+#     return RestfulResponse.success(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
 
 @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
     data = await crud.RedBookUrlsDal(auth.db).get_redbook_urls(red_id=id)
-    return SuccessResponse(data)
+    return RestfulResponse.success(data)

@@ -6,37 +6,22 @@
 # @File    : middleware.py
 # @Software: PyCharm
 # @desc    : 中间件
-
 """
 官方文档——中间件：https://fastapi.tiangolo.com/tutorial/middleware/
 官方文档——高级中间件：https://fastapi.tiangolo.com/advanced/middleware/
 """
-
 import datetime
 import json
 import time
-
+from fastapi import Request
 from fastapi import FastAPI
-from fastapi import Request, Response
 from fastapi.routing import APIRoute
 from user_agents import parse
-
-from application.settings import OPERATION_RECORD_METHOD, MONGO_DB_ENABLE, IGNORE_OPERATION_FUNCTION, \
-    DEMO_WHITE_LIST_PATH, DEMO, DEMO_BLACK_LIST_PATH
-from apps.vadmin.record.crud import OperationRecordDal
-from core.database import mongo_getter
-from core.logger import logger
-from utils import status
-from utils.response import ErrorResponse
-
-
-def write_request_log(request: Request, response: Response):
-    http_version = f"http/{request.scope['http_version']}"
-    content_length = response.raw_headers[0][1]
-    process_time = response.headers["X-Process-Time"]
-    content = f"basehttp.log_message: '{request.method} {request.url} {http_version}' {response.status_code}" \
-              f"{response.charset} {content_length} {process_time}"
-    logger.info(content)
+from application.settings import settings
+from apps.cruds.record_operation_crud import OperationCURD
+from core.logger import log
+from utils.response_code import Status
+from utils.response import RestfulResponse
 
 
 def register_request_log_middleware(app: FastAPI):
@@ -50,9 +35,19 @@ def register_request_log_middleware(app: FastAPI):
     async def request_log_middleware(request: Request, call_next):
         start_time = time.time()
         response = await call_next(request)
-        process_time = time.time() - start_time
+        process_time = f"{int((time.time() - start_time) * 1000)}ms"
         response.headers["X-Process-Time"] = str(process_time)
-        write_request_log(request, response)
+        http_version = f"http/{request.scope['http_version']}"
+        content_length = response.raw_headers[0][1]
+        process_time = response.headers["X-Process-Time"]
+        content = (
+            f"request router: '{request.method} {request.url} {http_version}' {response.status_code} "
+            f"{response.charset} {content_length} {process_time}"
+        )
+        if response.status_code != 200:
+            log.error(content)
+        else:
+            log.info(content)
         return response
 
 
@@ -66,19 +61,18 @@ def register_operation_record_middleware(app: FastAPI):
 
     @app.middleware("http")
     async def operation_record_middleware(request: Request, call_next):
+        if not settings.db.MONGO_DB_ENABLE:
+            log.error("未开启 MongoDB 数据库，无法存入操作记录，请在 config.py:OPERATION_LOG_RECORD 中关闭操作记录")
+            return RestfulResponse.error("系统异常，请联系管理员", code=Status.HTTP_500)
         start_time = time.time()
+        body_params = await request.body()
+        body_params = body_params.decode("utf-8", errors="ignore")
         response = await call_next(request)
-        if not MONGO_DB_ENABLE:
-            return response
-        telephone = request.scope.get('telephone', None)
-        user_id = request.scope.get('user_id', None)
-        user_name = request.scope.get('user_name', None)
-        route = request.scope.get('route')
-        if not telephone:
-            return response
-        elif request.method not in OPERATION_RECORD_METHOD:
-            return response
-        elif route.name in IGNORE_OPERATION_FUNCTION:
+        route = request.scope.get("route")
+        if (
+                request.method not in settings.system.OPERATION_RECORD_METHOD
+                or route.name in settings.system.IGNORE_OPERATION_FUNCTION
+        ):
             return response
         process_time = time.time() - start_time
         user_agent = parse(request.headers.get("user-agent"))
@@ -86,14 +80,8 @@ def register_operation_record_middleware(app: FastAPI):
         browser = f"{user_agent.browser.family} {user_agent.browser.version_string}"
         query_params = dict(request.query_params.multi_items())
         path_params = request.path_params
-        if isinstance(request.scope.get('body'), str):
-            body = request.scope.get('body')
-        else:
-            body = request.scope.get('body').decode()
-            if body:
-                body = json.loads(body)
         params = {
-            "body": body,
+            "body_params": body_params,
             "query_params": query_params if query_params else None,
             "path_params": path_params if path_params else None,
         }
@@ -101,9 +89,6 @@ def register_operation_record_middleware(app: FastAPI):
         assert isinstance(route, APIRoute)
         document = {
             "process_time": process_time,
-            "telephone": telephone,
-            "user_id": user_id,
-            "user_name": user_name,
             "request_api": request.url.__str__(),
             "client_ip": request.client.host,
             "system": system,
@@ -117,9 +102,9 @@ def register_operation_record_middleware(app: FastAPI):
             "status_code": response.status_code,
             "content_length": content_length,
             "create_datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "params": json.dumps(params)
+            "params": json.dumps(params),
         }
-        await OperationRecordDal(mongo_getter(request)).create_data(document)
+        await OperationCURD().create_data(document)
         return response
 
 
@@ -133,17 +118,13 @@ def register_demo_env_middleware(app: FastAPI):
     @app.middleware("http")
     async def demo_env_middleware(request: Request, call_next):
         path = request.scope.get("path")
-        if request.method != "GET":
-            print("路由：", path, request.method)
-        if DEMO and request.method != "GET":
-            if path in DEMO_BLACK_LIST_PATH:
-                return ErrorResponse(
-                    status=status.HTTP_403_FORBIDDEN,
-                    code=status.HTTP_403_FORBIDDEN,
-                    msg="演示环境，禁止操作"
-                )
-            elif path not in DEMO_WHITE_LIST_PATH:
-                return ErrorResponse(msg="演示环境，禁止操作")
+        # if request.method != "GET":
+        #     print("路由：", path, request.method)
+        if settings.demo.DEMO_ENV and request.method != "GET":
+            if path in settings.demo.DEMO_BLACK_LIST_PATH:
+                return RestfulResponse.error("演示环境，禁止操作")
+            elif path not in settings.demo.DEMO_WHITE_LIST_PATH:
+                return RestfulResponse.error("演示环境，禁止操作")
         return await call_next(request)
 
 
@@ -157,6 +138,6 @@ def register_jwt_refresh_middleware(app: FastAPI):
     @app.middleware("http")
     async def jwt_refresh_middleware(request: Request, call_next):
         response = await call_next(request)
-        refresh = request.scope.get('if-refresh', 0)
+        refresh = request.scope.get("if-refresh", 0)
         response.headers["if-refresh"] = str(refresh)
         return response

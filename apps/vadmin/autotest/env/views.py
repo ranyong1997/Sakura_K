@@ -13,7 +13,7 @@ from sqlalchemy.orm import joinedload
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
-from utils.response import SuccessResponse
+from utils.response import RestfulResponse
 from . import schemas, crud, params, models
 
 app = APIRouter()
@@ -34,13 +34,13 @@ async def get_env_list(p: params.EnvParams = Depends(), auth: Auth = Depends(Ful
         v_schema=schema,
         v_return_count=True
     )
-    return SuccessResponse(datas, count=count)
+    return RestfulResponse.success(datas, count=count)
 
 
 @app.post("/createenv", summary="创建环境")
 async def create_env(data: schemas.Env, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
-    return SuccessResponse(await crud.EnvDal(auth.db).create_data(data=data))
+    return RestfulResponse.success(await crud.EnvDal(auth.db).create_data(data=data))
 
 
 @app.put("/{data_id}", summary="更新环境")
@@ -49,16 +49,16 @@ async def update_apinfo(
         data: schemas.Env,
         auth: Auth = Depends(AllUserAuth())
 ):
-    return SuccessResponse(await crud.EnvDal(auth.db).put_data(data_id, data))
+    return RestfulResponse.success(await crud.EnvDal(auth.db).put_data(data_id, data))
 
 
 @app.delete("/delenv", summary="硬删除环境")
 async def delete_env(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.EnvDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 @app.delete("/softdelenv", summary="软删除环境")
 async def delete_env(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.EnvDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")

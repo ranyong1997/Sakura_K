@@ -9,12 +9,11 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
-
+from utils.response import RestfulResponse
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
 from core.mysql_manage import DatabaseHelper
-from utils.response import SuccessResponse
 from . import schemas, crud, params, models
 
 app = APIRouter()
@@ -35,13 +34,13 @@ async def get_datasource_list(p: params.DataSourceParams = Depends(), auth: Auth
         v_schema=schema,
         v_return_count=True
     )
-    return SuccessResponse(datas, count=count)
+    return RestfulResponse.success(datas, count=count)
 
 
 @app.post("/adddatasource", summary="新增数据源")
 async def add_datasource(data: schemas.DataSource, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
-    return SuccessResponse(await crud.DataSourceDal(auth.db).create_data(data=data))
+    return RestfulResponse.success(await crud.DataSourceDal(auth.db).create_data(data=data))
 
 
 @app.put("/{data_id}", summary="更新数据源")
@@ -50,19 +49,19 @@ async def update_datasource(
         data: schemas.DataSource,
         auth: Auth = Depends(AllUserAuth())
 ):
-    return SuccessResponse(await crud.DataSourceDal(auth.db).put_data(data_id, data))
+    return RestfulResponse.success(await crud.DataSourceDal(auth.db).put_data(data_id, data))
 
 
 @app.delete("/deldatasource", summary="硬删除数据源")
 async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 @app.delete("/softdeldatasource", summary="软删除数据源")
 async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
-    return SuccessResponse("删除成功")
+    return RestfulResponse.success("删除成功")
 
 
 ###########################################################
@@ -73,7 +72,7 @@ async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUse
 async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
     db_helper = DatabaseHelper(source_info=data.model_dump())
     datas = await db_helper.test_db_connection()
-    return SuccessResponse(datas)
+    return RestfulResponse.success(datas)
 
 
 @app.post("/dbList", summary="获取数据库中的所有库")
@@ -89,7 +88,7 @@ async def get_dblist(
         datas = await db_helper.get_database()
     else:
         datas = {"message": "无法获取数据源信息"}
-    return SuccessResponse(datas)
+    return RestfulResponse.success(datas)
 
 
 @app.post("/tableList", summary="获取指定数据库中的所有表名")
@@ -106,7 +105,7 @@ async def get_tablelist(
         datas = await db_helper.get_tables(database=databases)
     else:
         datas = {"message": "无法获取数据表信息"}
-    return SuccessResponse(datas)
+    return RestfulResponse.success(datas)
 
 
 @app.post("/mysqlexecute", summary="在指定的数据库中执行 SQL 查询语句")
@@ -121,7 +120,7 @@ async def mysqlexecute(
     json_data = jsonable_encoder(source_info)
     db_helper = DatabaseHelper(source_info=json_data)
     datas = await db_helper.execute_query(database=databases, query=sql)
-    return SuccessResponse(datas)
+    return RestfulResponse.success(datas)
 
 
 @app.post("/getalltablesandcolumns", summary="获取所有数据库及其表信息")
@@ -137,4 +136,4 @@ async def get_all_tablesandcolumns(
         datas = await db_helper.get_all_databases_and_tables()
     else:
         datas = {"message": "无法获取数据源信息"}
-    return SuccessResponse(datas)
+    return RestfulResponse.success(datas)

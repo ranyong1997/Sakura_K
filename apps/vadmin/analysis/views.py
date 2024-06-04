@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends
 
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
-from utils.response import SuccessResponse
+from utils.response import RestfulResponse
 
 app = APIRouter()
 
@@ -22,7 +22,7 @@ app = APIRouter()
 ###########################################################
 @app.get("/random/number", summary="获取随机整数")
 async def get_random_number(auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(random.randint(500, 20000))
+    return RestfulResponse.success(data=random.randint(500, 20000))
 
 
 @app.get("/banners", summary="轮播图")
@@ -41,7 +41,7 @@ async def get_banners():
             "image": "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         }
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/user/access/source", summary="用户来源")
@@ -53,7 +53,7 @@ async def get_user_access_source(auth: Auth = Depends(AllUserAuth())):
         {"value": 135, "name": 'analysis.videoAdvertising'},
         {"value": 1548, "name": 'analysis.searchEngines'}
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/weekly/user/activity", summary="每周用户活跃量")
@@ -67,7 +67,7 @@ async def get_weekly_user_activity(auth: Auth = Depends(AllUserAuth())):
         {"value": 1322, "name": 'analysis.saturday'},
         {"value": 1324, "name": 'analysis.sunday'}
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/monthly/sales", summary="每月销售额")
@@ -86,4 +86,4 @@ async def get_monthly_sales(auth: Auth = Depends(AllUserAuth())):
         {"estimate": 118, "actual": 99, "name": 'analysis.november'},
         {"estimate": 123, "actual": 123, "name": 'analysis.december'}
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)

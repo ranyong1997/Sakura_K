@@ -11,8 +11,7 @@ import datetime
 
 from fastapi import APIRouter
 
-from utils.response import SuccessResponse
-
+from utils.response import RestfulResponse
 app = APIRouter()
 
 
@@ -71,7 +70,7 @@ async def get_project():
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         }
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/dynamic", summary="获取动态")
@@ -86,7 +85,7 @@ async def get_dynamic():
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         }
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/team", summary="获取团队信息")
@@ -117,7 +116,7 @@ async def get_team():
             "icon": 'vscode-icons:file-type-vite'
         }
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)
 
 
 @app.get("/shortcuts", summary="获取快捷操作")
@@ -152,4 +151,4 @@ async def get_shortcuts():
             "link": "https://echarts.apache.org/zh/index.html"
         },
     ]
-    return SuccessResponse(data)
+    return RestfulResponse.success(data=data)

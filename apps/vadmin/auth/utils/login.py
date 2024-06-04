@@ -15,22 +15,20 @@ JWT 表示 「JSON Web Tokens」。https://jwt.io/
 PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许多安全哈希算法以及配合算法使用的实用程序。
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
-from datetime import timedelta
-
 import jwt
+from datetime import timedelta
 from fastapi import APIRouter, Depends, Request, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from application import settings
+from utils.response import RestfulResponse
 from apps.vadmin.auth.crud import MenuDal, UserDal
 from apps.vadmin.auth.models import VadminUser
 from apps.vadmin.record.models import VadminLoginRecord
 from core.database import db_getter, redis_getter
 from core.exception import CustomException
 from utils import status
-from utils.response import SuccessResponse, ErrorResponse
 from utils.wx.oauth import WXOAuth
 from .current import FullAdminAuth
 from .login_manage import LoginManage
@@ -95,10 +93,10 @@ async def login_for_access_token(
             "is_wx_server_openid": result.user.is_wx_server_openid
         }
         await VadminLoginRecord.create_login_record(db, data, True, request, resp)
-        return SuccessResponse(resp)
+        return RestfulResponse.success(data=resp)
     except ValueError as e:
         await VadminLoginRecord.create_login_record(db, data, False, request, {"message": str(e)})
-        return ErrorResponse(msg=str(e))
+        return RestfulResponse.error(message=str(e))
 
 
 @app.post("/wx/login", summary="微信服务端一键登录", description="员工登录通道")
@@ -111,7 +109,7 @@ async def wx_login_for_access_token(
     try:
         if data.platform != "1" or data.method != "2":
             raise ValueError("无效参数")
-        wx = WXOAuth(rd, 0)
+        wx = WXOAuth(rd)
         telephone = await wx.parsing_phone_number(data.code)
         if not telephone:
             raise ValueError("无效Code")
@@ -123,7 +121,7 @@ async def wx_login_for_access_token(
             raise ValueError("手机号已被冻结")
     except ValueError as e:
         await VadminLoginRecord.create_login_record(db, data, False, request, {"message": str(e)})
-        return ErrorResponse(msg=str(e))
+        return RestfulResponse.error(message=str(e))
 
     # 更新登录时间
     await UserDal(db).update_login_info(user, request.client.host)
@@ -143,12 +141,12 @@ async def wx_login_for_access_token(
         "is_wx_server_openid": user.is_wx_server_openid
     }
     await VadminLoginRecord.create_login_record(db, data, True, request, resp)
-    return SuccessResponse(resp)
+    return RestfulResponse.success(data=resp)
 
 
 @app.get("/getMenuList", summary="获取当前用户菜单树")
 async def get_menu_list(auth: Auth = Depends(FullAdminAuth())):
-    return SuccessResponse(await MenuDal(auth.db).get_routers(auth.user))
+    return RestfulResponse.success(data=await MenuDal(auth.db).get_routers(auth.user))
 
 
 @app.post("/token/refresh", summary="刷新Token")
@@ -160,11 +158,11 @@ async def token_refresh(refresh: str = Body(..., title="刷新Token")):
         is_refresh: bool = payload.get("is_refresh")
         password: str = payload.get("password")
         if not telephone or not is_refresh or not password:
-            return ErrorResponse("未认证，请您重新登录", code=error_code, status=error_code)
+            return RestfulResponse.error(message="未认证，请您重新登录", code=error_code, status_code=error_code)
     except jwt.exceptions.InvalidSignatureError:
-        return ErrorResponse("无效认证，请您重新登录", code=error_code, status=error_code)
+        return RestfulResponse.error(message="无效认证，请您重新登录", code=error_code, status_code=error_code)
     except jwt.exceptions.ExpiredSignatureError:
-        return ErrorResponse("登录已超时，请您重新登录", code=error_code, status=error_code)
+        return RestfulResponse.error("登录已超时，请您重新登录", code=error_code, status_code=error_code)
 
     access_token = LoginManage.create_token({"sub": telephone, "is_refresh": False, "password": password})
     expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
@@ -177,4 +175,4 @@ async def token_refresh(refresh: str = Body(..., title="刷新Token")):
         "refresh_token": refresh_token,
         "token_type": "Bearer"
     }
-    return SuccessResponse(resp)
+    return RestfulResponse.success(data=resp)
