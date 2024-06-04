@@ -6,6 +6,15 @@
 # @File    : main.py
 # @Software: PyCharm
 # @desc    : 调度任务
+from apscheduler.jobstores.base import ConflictingIdError
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+from application.settings import settings
+from core.exception import CustomException
+from core.logger import log
+from task.schema import AddTask, JobExecStrategy
+from task.utils.scheduler import Scheduler, scheduler_active
+from utils.singleton import Singleton
 
 
 class ScheduledTask(Scheduler, metaclass=Singleton):

@@ -357,7 +357,7 @@ class SystemSettings(Settings):
     ALLOW_HEADERS: list[str] = ["*"]
 
     # 全局事件配置
-    EVENTS: list[str | None] = [f"{PROJECT_NAME}.core.event.close_db_event"]
+    EVENTS: list[str | None] = ["core.event.close_db_event"]
 
     # 其他项目配置
     # 默认密码，"0" 默认为手机号后六位
@@ -380,13 +380,13 @@ class SystemSettings(Settings):
     # 中间件配置
     MIDDLEWARES: list[str | None] = [
         # 请求日志记录中间件
-        f"{PROJECT_NAME}.core.middleware.register_request_log_middleware" if REQUEST_LOG_RECORD else None,
+        "core.middleware.register_request_log_middleware" if REQUEST_LOG_RECORD else None,
         # 操作日志记录中间件 - 保存入 MongoDB 数据库
-        f"{PROJECT_NAME}.core.middleware.register_operation_record_middleware" if OPERATION_LOG_RECORD else None,
+        "core.middleware.register_operation_record_middleware" if OPERATION_LOG_RECORD else None,
         # 演示环境中间件
-        f"{PROJECT_NAME}.core.middleware.register_demo_env_middleware" if DemoSettings().DEMO_ENV else None,
+        "core.middleware.register_demo_env_middleware" if DemoSettings().DEMO_ENV else None,
         # 刷新 JWT 标记中间件
-        f"{PROJECT_NAME}.core.middleware.register_jwt_refresh_middleware",
+        "core.middleware.register_jwt_refresh_middleware",
     ]
 
 
