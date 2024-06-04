@@ -64,7 +64,7 @@ def create_app():
     )
     # 调用了 import_modules 函数来导入指定的中间件，该函数接受三个参数：modules 表示要导入的模块列表，message 表示当前导入的模块的消息，
     # app 表示 FastAPI 应用程序对象的引用。在这里，modules 和 message 都是 settings.MIDDLEWARES 和 "中间件"，而 app 则是传入的参数。
-    import_modules(settings.MIDDLEWARES, "中间件", app=app)
+    import_modules(settings.settings.system.MIDDLEWARES, "中间件", app=app)
 
     # 全局异常捕捉处理
     register_exception(app)
@@ -73,7 +73,7 @@ def create_app():
     register_middleware(app)
 
     # 挂在静态目录
-    # register_static(app)
+    register_static(app)
 
     # 引入应用中的路由
     # register_router(app)

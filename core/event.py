@@ -11,7 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from redis import asyncio as aioredis
 from redis.exceptions import AuthenticationError, TimeoutError, RedisError
 from sqlalchemy.exc import ProgrammingError
-from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
+from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME
 from core.logger import logger, log
 from db.database_factory import DatabaseFactory
 from task.main import scheduled_task
