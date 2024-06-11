@@ -64,6 +64,7 @@ def register_operation_record_middleware(app: FastAPI):
         if not settings.db.MONGO_DB_ENABLE:
             log.error("未开启 MongoDB 数据库，无法存入操作记录，请在 config.py:OPERATION_LOG_RECORD 中关闭操作记录")
             return RestfulResponse.error("系统异常，请联系管理员", code=Status.HTTP_500)
+
         start_time = time.time()
         body_params = await request.body()
         body_params = body_params.decode("utf-8", errors="ignore")

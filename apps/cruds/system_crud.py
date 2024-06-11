@@ -1,69 +1,69 @@
-# #!/usr/bin/env python
-# # -*- coding: utf-8 -*-
-# # @Time    : 2023-04-14 16:33:42
-# # @Author  :
-# # @Site    :
-# # @File    : crud.py
-# # @Software: PyCharm
-# # @desc    : 数据库 增删改查操作
-# import json
-# import os
-# from enum import Enum
-# from typing import Any
-# import base64
-# from fastapi import Request
-# from fastapi.encoders import jsonable_encoder
-# from motor.motor_asyncio import AsyncIOMotorDatabase
-# from redis.asyncio import Redis
-# from sqlalchemy import select, update
-# from sqlalchemy.ext.asyncio import AsyncSession
-# from sqlalchemy.orm import joinedload
-# from application.settings import settings
-# from apps.cruds.base.mongo import MongoCrud
-# from apps.models import dict_type_model, settings_model, settings_table_model
-# from apps.schemas import dict_schema, settings_schema, task_schema, settings_tab_schema
-# from core.crud import DalBase
-# from core.exception import CustomException
-# from db.redis.asyncio import RedisDatabase
-# from utils import status
-# from utils.file.file_manage import FileManage
-#
-#
-# class DictTypeDal(DalBase):
-#
-#     def __init__(self, db: AsyncSession):
-#         super(DictTypeDal, self).__init__()
-#         self.db = db
-#         self.model = dict_type_model.DictTypeModel
-#         self.schema = dict_schema.DictTypeSimpleOut
-#
-#     async def get_dicts_details(self, dict_types: list[str]) -> dict:
-#         """
-#         获取多个字典类型下的字典元素列表
-#         """
-#         data = {}
-#         options = [joinedload(self.model.details)]
-#         objs = await DictTypeDal(self.db).get_datas(
-#             limit=0,
-#             v_return_objs=True,
-#             v_options=options,
-#             dict_type=("in", dict_types)
-#         )
-#         for obj in objs:
-#             if not obj:
-#                 data[obj.dict_type] = []
-#                 continue
-#             else:
-#                 data[obj.dict_type] = [dict_schema.DictDetailsSimpleOut.model_validate(i).model_dump() for i in
-#                                        obj.details]
-#         return data
-#
-#     async def get_select_datas(self) -> list:
-#         """获取选择数据，全部数据"""
-#         sql = select(self.model)
-#         queryset = await self.db.execute(sql)
-#         return [dict_schema.DictTypeOptionsOut.model_validate(i).model_dump() for i in queryset.scalars().all()]
-#
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2023-04-14 16:33:42
+# @Author  :
+# @Site    :
+# @File    : crud.py
+# @Software: PyCharm
+# @desc    : 数据库 增删改查操作
+import json
+import os
+import base64
+from enum import Enum
+from typing import Any
+from fastapi import Request
+from fastapi.encoders import jsonable_encoder
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from redis.asyncio import Redis
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+from application.settings import settings
+from apps.cruds.base.mongo import MongoCrud
+from apps.models import dict_type_model, settings_model
+from apps.schemas import dict_schema, settings_schema, task_schema, settings_tab_schema
+from core.crud import DalBase
+from core.exception import CustomException
+from db.redis.asyncio import RedisDatabase
+from utils import status
+from utils.file.file_manage import FileManage
+
+
+class DictTypeDal(DalBase):
+
+    def __init__(self, db: AsyncSession):
+        super(DictTypeDal, self).__init__()
+        self.db = db
+        self.model = dict_type_model.DictTypeModel
+        self.schema = dict_schema.DictTypeSimpleOut
+
+    async def get_dicts_details(self, dict_types: list[str]) -> dict:
+        """
+        获取多个字典类型下的字典元素列表
+        """
+        data = {}
+        options = [joinedload(self.model.details)]
+        objs = await DictTypeDal(self.db).get_datas(
+            limit=0,
+            v_return_objs=True,
+            v_options=options,
+            dict_type=("in", dict_types)
+        )
+        for obj in objs:
+            if not obj:
+                data[obj.dict_type] = []
+                continue
+            else:
+                data[obj.dict_type] = [dict_schema.DictDetailsSimpleOut.model_validate(i).model_dump() for i in
+                                       obj.details]
+        return data
+
+    async def get_select_datas(self) -> list:
+        """获取选择数据，全部数据"""
+        sql = select(self.model)
+        queryset = await self.db.execute(sql)
+        return [dict_schema.DictTypeOptionsOut.model_validate(i).model_dump() for i in queryset.scalars().all()]
+
 #
 # class DictDetailsDal(DalBase):
 #
