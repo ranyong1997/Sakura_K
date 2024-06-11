@@ -8,10 +8,10 @@
 # @desc    : 系统记录管理路由，视图文件
 from fastapi import APIRouter, Depends
 
+from apps.cruds.base.mongo import ReturnType
 from apps.cruds.record_operation_crud import OperationCURD
 from apps.routers.auth_role.params import PageParams
 from apps.schemas import record_operation_schema
-from from apps.cruds.base.mongo import MongoCrud import ReturnType
 from utils.response import PageResponseSchema, RestfulResponse
 
 router = APIRouter(prefix="/system/record", tags=["系统记录管理"])

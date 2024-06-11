@@ -31,7 +31,7 @@ async def create(
           "is_active": true
         }
     """
-    return RestfulResponse.success(await AuthRoleCRUD(session).create_data(data=data))
+    return RestfulResponse.success(await AuthRoleCRUD(session).create_data(data))
 
 
 @router.post("/batch/create", response_model=ResponseSchema[str], summary="批量创建角色")

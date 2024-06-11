@@ -7,8 +7,9 @@
 # @Software: PyCharm
 # @desc    : 文件描述信息
 from motor.motor_asyncio import AsyncIOMotorClientSession
+
+from apps.cruds.base.mongo import MongoCrud
 from apps.schemas import scheduler_task_record_schema
-from from apps.cruds.base.mongo import MongoCrud import MongoCrud
 
 
 class SchedulerTaskRecordCURD(MongoCrud):

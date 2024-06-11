@@ -27,4 +27,4 @@ class SettingsModel(AbstractORMModel):
         ForeignKey("settings_table.id", ondelete='CASCADE'),
         comment="关联tab标签"
     )
-    tab: Mapped[set["Settings_Table"]] = relationship(foreign_keys=tab_id, back_populates="settings")
+    tab: Mapped[set["SettingsTableModel"]] = relationship(foreign_keys=tab_id, back_populates="settings")

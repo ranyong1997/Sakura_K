@@ -12,8 +12,9 @@ import json
 import bson
 import pytz
 from apscheduler.events import JobExecutionEvent
+
+from apps.cruds.base.mongo import ReturnType
 from core.logger import log
-from from apps.cruds.base.mongo import MongoCrud import ReturnType
 from task.utils.scheduler_task_list import SchedulerTaskListCURD
 from task.utils.scheduler_task_record import SchedulerTaskRecordCURD
 

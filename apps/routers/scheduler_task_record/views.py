@@ -8,10 +8,11 @@
 # @desc    : 调度任务执行记录管理路由，视图文件
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from fastapi import APIRouter, Depends
+
+from apps.cruds.base.mongo import ReturnType
 from apps.cruds.scheduler_task_record_crud import SchedulerTaskRecordCURD
 from apps.routers.auth_role.params import PageParams
 from apps.schemas import scheduler_task_record_schema
-from from apps.cruds.base.mongo import MongoCrud import ReturnType
 from db.database_factory import DatabaseFactory
 from utils.response import PageResponseSchema, RestfulResponse
 

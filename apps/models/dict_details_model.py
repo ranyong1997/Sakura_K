@@ -25,5 +25,5 @@ class DictDetailsModel(AbstractORMModel):
         ForeignKey("dict_type.id", ondelete='CASCADE'),
         comment="关联字典类型"
     )
-    dict_type: Mapped[set["DictType"]] = relationship(foreign_keys=dict_type_id, back_populates="details")
+    dict_type: Mapped[set["DictTypeModel"]] = relationship(foreign_keys=dict_type_id, back_populates="details")
     remark: Mapped[str | None] = mapped_column(String(255), comment="备注")

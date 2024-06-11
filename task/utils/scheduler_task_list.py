@@ -8,8 +8,8 @@
 # @desc    : 调度任务
 from motor.motor_asyncio import AsyncIOMotorClientSession
 
+from apps.cruds.base.mongo import MongoCrud
 from apps.schemas import scheduler_task_list_schema
-from from apps.cruds.base.mongo import MongoCrud import MongoCrud
 
 
 class SchedulerTaskListCURD(MongoCrud):
