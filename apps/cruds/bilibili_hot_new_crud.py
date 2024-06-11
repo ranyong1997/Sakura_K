@@ -7,13 +7,12 @@
 # @Software: PyCharm
 # @desc    :
 from typing import Literal
-
 from motor.motor_asyncio import AsyncIOMotorClientSession
 
+from apps.cruds.base.mongo import MongoCrud
 from apps.schemas import bilibili_hot_new_schema, scheduler_task_list_schema
 from core.exception import CustomException
 from core.logger import log
-from core.mongo_manage import MongoCrud
 from task.main import scheduled_task
 from task.schema import JobExecStrategy, AddTask
 from task.utils.scheduler_task_list import SchedulerTaskListCURD

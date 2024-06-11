@@ -19,8 +19,7 @@ aiohttp 异步请求文档：https://docs.aiohttp.org/en/stable/client_quickstar
 import aiohttp
 from aiohttp import TCPConnector
 from pydantic import BaseModel
-
-from application.settings import IP_PARSE_TOKEN, IP_PARSE_ENABLE
+from application import settings
 from core.logger import logger
 
 
@@ -40,7 +39,7 @@ class IPManage:
 
     def __init__(self, ip: str):
         self.ip = ip
-        self.url = f"https://api.ip138.com/ip/?ip={ip}&datatype=jsonp&token={IP_PARSE_TOKEN}"
+        self.url = f"https://api.ip138.com/ip/?ip={ip}&datatype=jsonp&token={settings.settings.system.IP_PARSE_TOKEN}"
 
     async def parse(self):
         """
@@ -50,7 +49,7 @@ class IPManage:
         """
         out = IPLocationOut()
         out.ip = self.ip
-        if not IP_PARSE_ENABLE:
+        if not settings.settings.system.IP_PARSE_ENABLE:
             logger.warning(
                 "未开启IP地址数据解析，无法获取到IP所属地，请在application/config/production.py:IP_PARSE_ENABLE中开启！"
             )

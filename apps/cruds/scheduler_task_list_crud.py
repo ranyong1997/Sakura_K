@@ -8,7 +8,7 @@
 # @desc    : 调度任务
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from apps.schemas import scheduler_task_list_schema
-from core.mongo_manage import MongoCrud, ReturnType
+from from apps.cruds.base.mongo import MongoCrud import MongoCrud, ReturnType
 from task.main import scheduled_task
 from task.schema import AddTask
 

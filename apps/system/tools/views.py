@@ -5,7 +5,7 @@
 # # @Site    :
 # # @File    : views.py
 # # @Software: PyCharm
-# # @desc    :
+# # @desc    : 代码生成
 # import importlib
 # from .schemas import GenerateAppCode
 # from fastapi import FastAPI

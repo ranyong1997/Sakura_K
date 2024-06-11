@@ -2,23 +2,20 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/18 19:45
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : cache.py
 # @Software: PyCharm
 # @desc    : 缓存
-
 import json
 from typing import List
-
 from redis.asyncio.client import Redis
 from sqlalchemy import false
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-
-from apps.vadmin.system.models import VadminSystemSettingsTab
-from core.database import db_getter
+from apps.models.settings_table_model import SettingsTableModel
 from core.exception import CustomException
 from core.logger import logger  # 注意：报错就在这里，如果只写 core.logger 会写入日志报错，很难排查
+from db.async_base import AsyncAbstractDatabase
 from utils import status
 
 
@@ -32,9 +29,9 @@ class Cache:
         """
         获取系统配置标签下的标签信息
         """
-        async_session = db_getter()
+        async_session = AsyncAbstractDatabase.db_getter()
         session = await async_session.__anext__()
-        model = VadminSystemSettingsTab
+        model = SettingsTableModel
         v_options = [joinedload(model.settings)]
         sql = select(model).where(
             model.is_delete == false(),
@@ -46,7 +43,7 @@ class Cache:
         return self.__generate_values(datas)
 
     @classmethod
-    def __generate_values(cls, datas: List[VadminSystemSettingsTab]):
+    def __generate_values(cls, datas: List[SettingsTableModel]):
         """
         生成字典值
         """

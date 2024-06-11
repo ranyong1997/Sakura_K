@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Query
 from apps.cruds.scheduler_task_list_crud import SchedulerTaskListCURD
 from apps.routers.scheduler_task.params import PageParams
 from apps.schemas import scheduler_task_list_schema
-from core.mongo_manage import ReturnType
+from from apps.cruds.base.mongo import MongoCrud import ReturnType
 from db.database_factory import DatabaseFactory
 from utils.response import ResponseSchema, RestfulResponse, PageResponseSchema
 

@@ -11,21 +11,16 @@ FastApi 更新文档：https://github.com/tiangolo/fastapi/releases
 FastApi Github：https://github.com/tiangolo/fastapi
 Typer 官方文档：https://typer.tiangolo.com/
 """
-import asyncio
 import logging
 import click
 import typer
-import uvicorn
 from fastapi import FastAPI
 from rich.padding import Padding
 from rich.panel import Panel
 from rich import print
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
-
 from application import settings
-from application import urls
-from core.docs import custom_api_docs
 from core.logger import log
 from core.register import register_event, \
     register_exception, \
@@ -33,12 +28,9 @@ from core.register import register_event, \
     register_static, \
     register_router, \
     register_system_router
-from scripts.create_app.main import CreateApp
-# from scripts.initialize.initialize import InitializeData, Environment
 from utils.response import ErrorResponseSchema
 from utils.tools import import_modules, exec_shell_command
 
-# shell_app = typer.Typer()
 shell_app = typer.Typer(rich_markup_mode="rich")
 # 关闭 Uvicorn HTTP 请求日志记录
 uvicorn_access_logger = logging.getLogger("uvicorn.access")
@@ -100,12 +92,7 @@ def create_app():
     # 此外，如果启用了静态文件服务，使用 StaticFiles 中间件来挂载静态目录。
     if settings.settings.system.STATIC_ENABLE:
         app.mount(settings.settings.system.STATIC_URL, app=StaticFiles(directory=settings.settings.system.STATIC_PATH))
-    # 引入应用中的路由
-    for url in urls.urlpatterns:
-        # 最后，使用 include_router 方法来引入应用程序中的路由。
-        app.include_router(url["ApiRouter"], prefix=url["prefix"], tags=url["tags"])
-    # 配置接口文档静态资源
-    custom_api_docs(app)
+
     return app
 
 

@@ -33,10 +33,10 @@ def register_middleware(app: FastAPI):
     if settings.system.CORS_ORIGIN_ENABLE:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=settings.system.ALLOW_ORIGINS,
-            allow_credentials=settings.system.ALLOW_CREDENTIALS,
-            allow_methods=settings.system.ALLOW_METHODS,
-            allow_headers=settings.system.ALLOW_HEADERS,
+            allow_origins=settings.system.ALLOW_ORIGINS,  # 只允许访问的域名列表
+            allow_credentials=settings.system.ALLOW_CREDENTIALS,  # 是否支持携带
+            allow_methods=settings.system.ALLOW_METHODS,  # 设置允许跨域的http方法
+            allow_headers=settings.system.ALLOW_HEADERS,  # 允许携带的headers
         )
 
 
@@ -68,9 +68,5 @@ def register_system_router(app: FastAPI):
     """
     注册系统路由
     """
-    # from kinit_fast_task.app.system.docs import views as docs_views
-    # from kinit_fast_task.app.system.tools import views as tools_views
-
-    # docs_views.load_system_routes(app)
-    # tools_views.load_system_routes(app)
-    pass
+    from apps.system.docs import views as docs_views
+    docs_views.load_system_routes(app)

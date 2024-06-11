@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2023/8/17 14:51
+# @Time    : 2024/6/7 16:37
 # @Author  : 冉勇
-# @Site    :
+# @Site    : 
 # @File    : db_getter.py
 # @Software: PyCharm
-# @desc    : 任务基础类
-
+# @desc    :
 import re
-
 import pymysql
 
-from application.settings import SQLALCHEMY_DATABASE_URL
+from application import settings
 from core.logger import logger
 
 
@@ -26,7 +24,7 @@ class DBGetter:
         连接系统中配置的 mysql 数据库
         """
         try:
-            connection_string = SQLALCHEMY_DATABASE_URL.split("//")[1]
+            connection_string = settings.settings.ORM_DATABASE_URL.db.split("//")[1]
             pattern = r'^(?P<username>[^:]+):(?P<password>[^@]+)@(?P<host>[^:/]+):(?P<port>\d+)/(?P<database>[^/]+)$'
             match = re.match(pattern, connection_string)
             username = match.group('username')

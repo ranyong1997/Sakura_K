@@ -8,7 +8,6 @@
 # @desc    : 接口文档
 from fastapi import Request, FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html, get_redoc_html
-
 from application.settings import settings
 
 
@@ -38,5 +37,5 @@ def load_system_routes(app: FastAPI):
         return get_redoc_html(
             openapi_url=request.app.openapi_url,
             title=f"{request.app.title} - ReDoc",
-            redoc_js_url=f"{settings.system.STATIC_URL}/redoc_ui/redoc.standalone.js",
+            redoc_js_url=f"{settings.settings.system.STATIC_URL}/redoc_ui/redoc.standalone.js",
         )

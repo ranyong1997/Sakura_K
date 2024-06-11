@@ -262,6 +262,16 @@ class Settings(BaseSettings):
         return init_settings, env_settings, dotenv_settings
 
 
+class OSSSettings(Settings):
+    """
+    OSS关联配置
+    """
+
+    # OSS关联配置
+    OSS_ENABLE: bool
+    ALIYUN_OSS: str
+
+
 class DBSettings(Settings):
     """
     项目关联数据库配置
@@ -389,6 +399,10 @@ class SystemSettings(Settings):
         "core.middleware.register_jwt_refresh_middleware",
     ]
 
+    # 获取IP地址归属地
+    IP_PARSE_ENABLE: bool = False
+    IP_PARSE_TOKEN: str = None
+
 
 class AuthSettings(Settings):
     """
@@ -458,7 +472,7 @@ class GlobalSettings(BaseSettings):
     # 项目关联数据库配置
     db: DBSettings = DBSettings()
     # 阿里云 OSS 配置
-    # oss: OSSSettings = OSSSettings()
+    oss: OSSSettings = OSSSettings()
     # 系统基础配置
     system: SystemSettings = SystemSettings()
     # 系统路由

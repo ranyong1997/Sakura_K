@@ -28,7 +28,7 @@ from collections.abc import Callable
 from application.settings import settings
 from core.exception import CustomException
 from core.logger import log
-from core.mongo_manage import ReturnType
+from from apps.cruds.base.mongo import MongoCrud import ReturnType
 from task.utils.listener import async_listener_decorator, before_job_execution
 from task.utils.scheduler_task_list import SchedulerTaskListCURD
 from task.utils.scheduler_task_record import SchedulerTaskRecordCURD

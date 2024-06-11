@@ -10,7 +10,7 @@
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
 import copy
-from fastapi import Query
+from fastapi import Query,Body
 
 
 class QueryParams:
@@ -67,3 +67,12 @@ class Paging(QueryParams):
         self.limit = limit
         self.v_order = v_order
         self.v_order_field = v_order_field
+
+
+class IdList:
+    """
+    id 列表
+    """
+
+    def __init__(self, ids: list[int] = Body(..., title="ID 列表")):
+        self.ids = ids

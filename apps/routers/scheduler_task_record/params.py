@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    :
 from fastapi import Depends
-from core.dependencies import QueryParams, Paging
+from apps.depends.Paging import QueryParams, Paging
 
 
 class PageParams(QueryParams):
