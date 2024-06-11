@@ -10,8 +10,10 @@ import jwt
 from datetime import datetime, timedelta
 from fastapi import Request
 from application import settings
+from apps.depends.validation.login import LoginForm, LoginValidation, LoginResult
+from apps.models.user_model import UserModel
+from db.redis.asyncio import RedisDatabase
 from utils.sms.code import CodeSMS
-from .validation import LoginValidation, LoginForm, LoginResult
 
 
 class LoginManage:
@@ -20,11 +22,11 @@ class LoginManage:
     """
 
     @LoginValidation
-    async def password_login(self, data: LoginForm, user: models.VadminUser, **kwargs) -> LoginResult:
+    async def password_login(self, data: LoginForm, user: UserModel, **kwargs) -> LoginResult:
         """
         验证用户密码
         """
-        result = models.VadminUser.verify_password(data.password, user.password)
+        result = UserModel.verify_password(data.password, user.password)
         if result:
             return LoginResult(status=True, msg="验证成功")
         return LoginResult(status=False, msg="手机号或密码错误")
@@ -34,7 +36,7 @@ class LoginManage:
         """
         验证用户短信验证码
         """
-        rd = redis_getter(request)
+        rd = RedisDatabase.db_getter(request)
         sms = CodeSMS(data.telephone, rd)
         result = await sms.check_sms_code(data.password)
         if result:
@@ -54,7 +56,7 @@ class LoginManage:
         if expires:
             expire = datetime.utcnow() + expires
         else:
-            expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.utcnow() + timedelta(minutes=settings.settings.auth.ACCESS_TOKEN_EXPIRE_MINUTES)
         payload.update({"exp": expire})
-        encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        encoded_jwt = jwt.encode(payload, settings.settings.auth.SECRET_KEY, algorithm=settings.settings.auth.ALGORITHM)
         return encoded_jwt

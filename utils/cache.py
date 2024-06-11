@@ -12,7 +12,8 @@ from redis.asyncio.client import Redis
 from sqlalchemy import false
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
-from apps.models.settings_table_model import SettingsTableModel
+
+from apps.models.settings_model import SettingsTableModel
 from core.exception import CustomException
 from core.logger import logger  # 注意：报错就在这里，如果只写 core.logger 会写入日志报错，很难排查
 from db.async_base import AsyncAbstractDatabase

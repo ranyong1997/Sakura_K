@@ -28,3 +28,17 @@ class SettingsModel(AbstractORMModel):
         comment="关联tab标签"
     )
     tab: Mapped[set["SettingsTableModel"]] = relationship(foreign_keys=tab_id, back_populates="settings")
+
+
+class SettingsTableModel(AbstractORMModel):
+    __tablename__ = "settings_table"
+    __table_args__ = ({'comment': '系统配置分类表'})
+
+    title: Mapped[str] = mapped_column(String(255), comment="标题")
+    classify: Mapped[str] = mapped_column(String(255), index=True, nullable=False, comment="分类键")
+    tab_label: Mapped[str] = mapped_column(String(255), comment="tab标题")
+    tab_name: Mapped[str] = mapped_column(String(255), index=True, nullable=False, unique=True, comment="tab标识符")
+    hidden: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否隐藏")
+    disabled: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否禁用")
+
+    settings: Mapped[list["SettingsModel"]] = relationship(back_populates="tab")

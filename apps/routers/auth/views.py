@@ -5,8 +5,22 @@
 # @Site    :
 # @File    : views.py
 # @Software: PyCharm
-# @desc    :
-
+# @desc    : 用户认证、管理
+import jwt
+from datetime import timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.ext.asyncio import AsyncSession
+from application import settings
+from db.orm.asyncio import ORMDatabase
+from core.exception import CustomException
+from utils import status
+from utils.response_code import Status
+from utils.wx.oauth import WXOAuth
+from apps.depends.login_manage import LoginManage
+from apps.depends.validation.login import LoginForm, WXLoginForm
+from apps.cruds.auth_crud import UserDal
+from apps.models.login_model import LoginModel
+from apps.models.user_model import UserModel
 from fastapi import APIRouter, Depends, Body, UploadFile, Request
 from redis.asyncio import Redis
 from sqlalchemy.orm import joinedload
@@ -24,11 +38,153 @@ router = APIRouter(prefix="/auth", tags=["系统认证"])
 
 
 ###########################################################
-#    接口测试
+#                     接口测试                             #
 ###########################################################
 @router.get("/test", summary="接口测试")
 async def test(auth: Auth = Depends(OpenAuth())):
     return RestfulResponse.success(await auth_crud.TestDal(auth.db).relationship_where_operations_has())
+
+
+###########################################################
+#                     系统认证                             #
+###########################################################
+@router.post("/api/login", summary="API 手机号密码登录", description="Swagger API 文档登录认证")
+async def api_login_for_access_token(
+        request: Request,
+        data: OAuth2PasswordRequestForm = Depends(),
+        db: AsyncSession = Depends(ORMDatabase.db_getter)
+):
+    user = await UserDal(db).get_data(telephone=data.username, v_return_none=True)
+    if not user:
+        raise CustomException(status_code=Status.HTTP_401, code=Status.HTTP_401, message="该手机号不存在")
+    result = UserModel.verify_password(data.password, user.password)
+    if not result:
+        raise CustomException(status_code=Status.HTTP_401, code=Status.HTTP_401, message="手机号或密码错误")
+    if not user.is_active:
+        raise CustomException(status_code=Status.HTTP_401, code=Status.HTTP_401, message="此手机号已被冻结")
+    elif not user.is_staff:
+        raise CustomException(status_code=Status.HTTP_401, code=Status.HTTP_401, message="此手机号无权限")
+    access_token = LoginManage.create_token({"sub": user.telephone, "password": user.password})
+    record = LoginForm(platform='2', method='0', telephone=data.username, password=data.password)
+    resp = {"access_token": access_token, "token_type": "Bearer"}
+    await LoginModel.create_login_record(db, record, True, request, resp)
+    return resp
+
+
+@router.post("/login", summary="手机号密码登录", description="员工登录通道，限制最多输错次数，达到最大值后将is_active=False")
+async def login_for_access_token(
+        request: Request,
+        data: LoginForm,
+        manage: LoginManage = Depends(),
+        db: AsyncSession = Depends(ORMDatabase.db_getter)
+):
+    try:
+        if data.method == "0":
+            result = await manage.password_login(data, db, request)
+        elif data.method == "1":
+            result = await manage.sms_login(data, db, request)
+        else:
+            raise ValueError("无效参数")
+
+        if not result.status:
+            raise ValueError(result.msg)
+
+        access_token = LoginManage.create_token(
+            {"sub": result.user.telephone, "is_refresh": False, "password": result.user.password}
+        )
+        expires = timedelta(minutes=settings.settings.auth.REFRESH_TOKEN_EXPIRE_MINUTES)
+        refresh_token = LoginManage.create_token({"sub": result.user.telephone, "is_refresh": True}, expires=expires)
+        resp = {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "Bearer",
+            "is_reset_password": result.user.is_reset_password,
+            "is_wx_server_openid": result.user.is_wx_server_openid
+        }
+        await LoginModel.create_login_record(db, data, True, request, resp)
+        return RestfulResponse.success(data=resp)
+    except ValueError as e:
+        await LoginModel.create_login_record(db, data, False, request, {"message": str(e)})
+        return RestfulResponse.error(message=str(e))
+
+
+@router.post("/wx/login", summary="微信服务端一键登录", description="员工登录通道")
+async def wx_login_for_access_token(
+        request: Request,
+        data: WXLoginForm,
+        db: AsyncSession = Depends(ORMDatabase.db_getter),
+        rd: Redis = Depends(RedisDatabase.db_getter)
+):
+    try:
+        if data.platform != "1" or data.method != "2":
+            raise ValueError("无效参数")
+        wx = WXOAuth(rd)
+        telephone = await wx.parsing_phone_number(data.code)
+        if not telephone:
+            raise ValueError("无效Code")
+        data.telephone = telephone
+        user = await UserDal(db).get_data(telephone=telephone, v_return_none=True)
+        if not user:
+            raise ValueError("手机号不存在")
+        elif not user.is_active:
+            raise ValueError("手机号已被冻结")
+    except ValueError as e:
+        await LoginModel.create_login_record(db, data, False, request, {"message": str(e)})
+        return RestfulResponse.error(message=str(e))
+
+    # 更新登录时间
+    await UserDal(db).update_login_info(user, request.client.host)
+
+    # 登录成功创建 token
+    access_token = LoginManage.create_token({"sub": user.telephone, "is_refresh": False, "password": user.password})
+    expires = timedelta(minutes=settings.settings.auth.REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = LoginManage.create_token(
+        payload={"sub": user.telephone, "is_refresh": True, "password": user.password},
+        expires=expires
+    )
+    resp = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "Bearer",
+        "is_reset_password": user.is_reset_password,
+        "is_wx_server_openid": user.is_wx_server_openid
+    }
+    await LoginModel.create_login_record(db, data, True, request, resp)
+    return RestfulResponse.success(data=resp)
+
+
+@router.get("/getMenuList", summary="获取当前用户菜单树")
+async def get_menu_list(auth: Auth = Depends(FullAdminAuth())):
+    return RestfulResponse.success(data=await auth_crud.MenuDal(auth.db).get_routers(auth.user))
+
+
+@router.post("/token/refresh", summary="刷新Token")
+async def token_refresh(refresh: str = Body(..., title="刷新Token")):
+    Status.HTTP_401 = status.HTTP_401_UNAUTHORIZED
+    try:
+        payload = jwt.decode(refresh, settings.settings.auth.SECRET_KEY, algorithms=[settings.settings.auth.ALGORITHM])
+        telephone: str = payload.get("sub")
+        is_refresh: bool = payload.get("is_refresh")
+        password: str = payload.get("password")
+        if not telephone or not is_refresh or not password:
+            return RestfulResponse.error(message="未认证，请您重新登录", code=Status.HTTP_401, status_code=Status.HTTP_401)
+    except jwt.exceptions.InvalidSignatureError:
+        return RestfulResponse.error(message="无效认证，请您重新登录", code=Status.HTTP_401, status_code=Status.HTTP_401)
+    except jwt.exceptions.ExpiredSignatureError:
+        return RestfulResponse.error("登录已超时，请您重新登录", code=Status.HTTP_401, status_code=Status.HTTP_401)
+
+    access_token = LoginManage.create_token({"sub": telephone, "is_refresh": False, "password": password})
+    expires = timedelta(minutes=settings.settings.auth.REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = LoginManage.create_token(
+        payload={"sub": telephone, "is_refresh": True, "password": password},
+        expires=expires
+    )
+    resp = {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "Bearer"
+    }
+    return RestfulResponse.success(data=resp)
 
 
 ###########################################################

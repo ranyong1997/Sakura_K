@@ -7,13 +7,10 @@
 # @Software: PyCharm
 # @desc    : 轮播图
 import random
-
 from fastapi import APIRouter
-
-
 from utils.response import RestfulResponse
 
-router = APIRouter(prefix="/auth/role", tags=["角色管理"])
+router = APIRouter(prefix="/vadmin/analysis", tags=["数据分析管理"])
 
 
 ###########################################################
