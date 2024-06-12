@@ -8,7 +8,6 @@
 # @desc    :
 from typing import Literal
 from motor.motor_asyncio import AsyncIOMotorClientSession
-
 from apps.cruds.base.mongo import MongoCrud
 from apps.schemas import bilibili_hot_new_schema, scheduler_task_list_schema
 from core.exception import CustomException

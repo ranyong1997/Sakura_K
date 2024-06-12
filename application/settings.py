@@ -9,7 +9,6 @@
 import os
 from ipaddress import IPv4Address
 from collections.abc import Callable
-
 from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是用于在 OAuth2 鉴权方式下获取访问令牌的类。
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 from pydantic import RedisDsn, MongoDsn, MySQLDsn
@@ -30,185 +29,6 @@ BANNER = """
 ███████ ██   ██ ██   ██  ██████  ██   ██ ██   ██ ███████ ██   ██ 
                                                                  
 """
-
-"""
-⚠️安全警告:请不要在正式环境中打开调试运行!!!
-"""
-# DEBUG = True
-
-"""
-是否开启演示功能，开启则取消所有的POST、DELETE、PUT操作权限
-"""
-# DEMO = False
-
-"""
-演示功能白名单
-"""
-# DEMO_WHITE_LIST_PATH = [
-#     "/auth/login",
-#     "/auth/token/refresh",
-#     "/auth/wx/login",
-#     "/vadmin/system/dict/types/details",
-#     "/vadmin/system/settings/tabs",
-#     "/vadmin/auth/user/export/query/list/to/excel"
-# ]
-
-"""
-演示功能黑名单（触发异常 status_code=403），黑名单优先级更高
-"""
-# DEMO_BLACK_LIST_PATH = [
-#     "/auth/api/login"
-# ]
-
-"""
-引入数据库配置
-"""
-# if DEBUG:
-#     from application.config.development import *
-# else:
-#     from application.config.production import *
-
-"""
-项目根目录
-"""
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-"""
-是否开启登录认证
-只使用与简单的接口
-如果是与认证关联性比较强的接口，则无法调用
-"""
-# OAUTH_ENABLE = True
-
-"""
-配置 OAuth2 密码流认证方式
-官方文档：https://fastapi.tiangolo.com/zh/tutorial/security/first-steps/#fastapi-oauth2passwordbearer
-auto_error:(bool) 可选参数，默认为 True。当验证失败时，如果设置为 True，FastAPI 将自动返回一个 401 未授权的响应，如果设置为 False，你需要自己处理身份验证失败的情况。
-这里的 auto_error 设置为 False 是因为存在 OpenAuth：开放认证，无认证也可以访问，
-如果设置为 True，那么 FastAPI 会自动报错，即无认证时 OpenAuth 会失效，所以不能使用 True。
-"""
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/api/login", auto_error=False) if OAUTH_ENABLE else lambda: ""
-
-"""
-安全的随机秘钥，该秘钥将用于对JWT令牌进行签名
-"""
-# SECRET_KEY = 'vgb0tnl9d58+6n-6h-ea&u^1#s0ccp!794=kbvqacjq75vzps$'
-
-"""
-用于设定JWT令牌签名算法
-"""
-# ALGORITHM = "HS256"
-
-"""
-access_token 过期时间: 1 Day
-"""
-# ACCESS_TOKEN_EXPIRE_MINUTES = 1440
-
-"""
-refresh_token 过期时间，用于刷新token使用：2 Day
-"""
-# REFRESH_TOKEN_EXPIRE_MINUTES = 1440 * 2
-
-"""
-access——token 缓存时间，用于刷新token使用：30 Minute
-"""
-# ACCESS_TOKEN_CACHE_MINUTES = 30
-
-"""
-挂载临时文件，并添加路由访问，此路由不会再接口文档中显示
-TEMP_DIR：临时文件目录绝对地址
-官方文档：https://fastapi.tiangolo.com/tutorial/static-files/
-"""
-# TEMP_DIR = os.path.join(BASE_DIR, "temp")
-
-"""
-挂载静态目录，并添加路由访问，此路由不会再接口文档中显示
-STATIC_ENABLE：是否启用静态目录访问
-STATIC_URL：路由访问
-STATIC_ROOT：静态文件绝对路径
-官方文档：https://fastapi.tiangolo.com/tutorial/static-files/
-"""
-# STATIC_ENABLE = True
-# STATIC_URL = "/media"
-# STATIC_DIR = "static"
-# STATIC_ROOT = os.path.join(BASE_DIR, STATIC_DIR)
-
-"""
-跨域
-官方文档：https://fastapi.tiangolo.com/tutorial/cors/
-"""
-# # 是否启用跨域
-# CORS_ORIGIN_ENABLE = True
-# # 只允许访问的域名列表，* 代表所有
-# ALLOW_ORIGINS = ["*"]
-# # 是否支持携带 cookie
-# ALLOW_CREDENTIALS = True
-# # 设置允许跨域的http方法，比如 get、post、delete、put等
-# ALLOW_METHODS = ["*"]
-# # 允许携带headers，可以用来鉴别来源等
-# ALLOW_HEADERS = ["*"]
-
-"""
-全局事件配置
-"""
-# EVENTS = [
-#     "core.event.connect_mongo" if MONGO_DB_ENABLE else None,
-#     "core.event.connect_redis" if REDIS_DB_ENABLE else None,
-# ]
-
-"""
-其他项目配置
-"""
-# # 默认密码，"0" 默认为手机号后六位
-# DEFAULT_PASSWORD = "0"
-# # 默认头像
-# DEFAULT_AVATAR = "https://ran-oss-yong.oss-cn-shenzhen.aliyuncs.com/avatar.gif"
-# # 默认登陆时最大输入密码或验证码错误次数
-# DEFAULT_AUTH_ERROR_MAX_NUMBER = 5
-# # 是否开启保存登录日志
-# LOGIN_LOG_RECORD = not DEBUG
-# # 是否开启保存每次请求日志到本地
-# REQUEST_LOG_RECORD = True
-# # 是否开启每次操作日志记录到MongoDB数据库
-# OPERATION_LOG_RECORD = True
-# # 只记录包括的请求方式操作到MongoDB数据库
-# OPERATION_RECORD_METHOD = ["POST", "PUT", "DELETE"]
-# # 忽略的操作接口函数名称，列表中的函数名称不会被记录到操作日志中
-# IGNORE_OPERATION_FUNCTION = ["post_dicts_details"]
-
-"""
-中间件配置
-"""
-# MIDDLEWARES = [
-#     "core.middleware.register_request_log_middleware" if REQUEST_LOG_RECORD else None,
-#     "core.middleware.register_operation_record_middleware" if OPERATION_LOG_RECORD and MONGO_DB_ENABLE else None,
-#     "core.middleware.register_demo_env_middleware" if DEMO else None,
-#     "core.middleware.register_jwt_refresh_middleware"
-# ]
-
-"""
-发布/订阅通道
-
-与接口相互关联，请勿随意更改
-"""
-# SUBSCRIBE = 'sakura_queue'
-
-"""
-MongoDB 集合
-
-与接口相互关联，相互查询，请勿随意更改
-"""
-# # 用于存放任务调用日志
-# SCHEDULER_TASK_RECORD = "scheduler_task_record"
-# # 用于存放运行中的任务
-# SCHEDULER_TASK_JOBS = "scheduler_task_jobs"
-# # 用于存放任务信息
-# SCHEDULER_TASK = "vadmin_system_task"
-
-"""
-定时任务脚本目录
-"""
-# TASKS_ROOT = "tasks"
 
 """
 项目描述
@@ -247,7 +67,7 @@ class Settings(BaseSettings):
     3. dotenv_settings：从 dotenv（.env）文件加载的变量。
     4. settings_cls：BaseSettings 模型的默认字段值。
     """
-
+    # 加载 env 配置文件
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @classmethod
@@ -305,13 +125,13 @@ class DemoSettings(Settings):
 
     # 演示功能白名单
     DEMO_WHITE_LIST_PATH: list[str] = [
-        "/auth/login",
-        "/auth/token/refresh",
-        "/auth/wx/login",
-        "/vadmin/system/dict/types/details",
-        "/vadmin/system/settings/tabs",
-        "/vadmin/resource/images",
-        "/vadmin/auth/user/export/query/list/to/excel",
+        "/auth/login",  # 登录
+        "/auth/token/refresh",  # 刷新 token
+        "/auth/wx/login",  # 微信服务端一键登录
+        "/vadmin/system/dict/types/details",  # 获取多个字典下的元素列表
+        "/vadmin/system/settings/tabs",  # 获取系统配置标签列表
+        "/vadmin/resource/images",  # 创建图片
+        "/vadmin/auth/user/export/query/list/to/excel",  # 导出用户查询列表为 excel
     ]
     # 演示功能黑名单，黑名单优先级更高
     DEMO_BLACK_LIST_PATH: list[str] = ["/auth/api/login"]
@@ -320,7 +140,6 @@ class DemoSettings(Settings):
 class SystemSettings(Settings):
     """
     系统默认配置
-
     主要为系统默认配置，一般情况下不涉及改变
     """
 
@@ -332,7 +151,6 @@ class SystemSettings(Settings):
     PROJECT_NAME: str = "Sakura_K"
     # 项目根目录
     BASE_PATH: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
     # 挂载临时文件目录，并添加路由访问，此路由不会在接口文档中显示
     # TEMP_DIR：临时文件目录绝对路径
     # 官方文档：https://fastapi.tiangolo.com/tutorial/static-files/
@@ -373,7 +191,7 @@ class SystemSettings(Settings):
     # 默认密码，"0" 默认为手机号后六位
     DEFAULT_PASSWORD: str = "0"
     # 默认头像
-    DEFAULT_AVATAR: str = "https://vv-reserve.oss-cn-hangzhou.aliyuncs.com/avatar/2023-01-27/1674820804e81e7631.png"
+    DEFAULT_AVATAR: str = "https://ran-oss-yong.oss-cn-shenzhen.aliyuncs.com/avatar.gif"
     # 默认登陆时最大输入密码或验证码错误次数
     DEFAULT_AUTH_ERROR_MAX_NUMBER: int = 5
     # 是否开启保存登录日志
@@ -386,7 +204,6 @@ class SystemSettings(Settings):
     OPERATION_RECORD_METHOD: list[str] = ["POST", "PUT", "DELETE"]
     # 忽略的操作接口函数名称，列表中的函数名称不会被记录到操作日志中
     IGNORE_OPERATION_FUNCTION: list[str] = ["post_dicts_details"]
-
     # 中间件配置
     MIDDLEWARES: list[str | None] = [
         # 请求日志记录中间件
@@ -396,7 +213,7 @@ class SystemSettings(Settings):
         # 演示环境中间件
         "core.middleware.register_demo_env_middleware" if DemoSettings().DEMO_ENV else None,
         # 刷新 JWT 标记中间件
-        "core.middleware.register_jwt_refresh_middleware",
+        "core.middleware.register_jwt_refresh_middleware"
     ]
 
     # 获取IP地址归属地
@@ -442,7 +259,7 @@ class TaskSettings(Settings):
     # 运行中任务集合
     SCHEDULER_TASK_JOBS: str = "scheduler_task_jobs"
     # 任务脚本目录
-    TASK_PAG: str = f"{SystemSettings().PROJECT_NAME}.app.tasks"
+    TASK_PAG: str = f"{SystemSettings()}.app.tasks"
 
 
 class RouterSettings(Settings):
