@@ -38,14 +38,6 @@ router = APIRouter(prefix="/auth", tags=["系统认证"])
 
 
 ###########################################################
-#                     接口测试                             #
-###########################################################
-@router.get("/test", summary="接口测试")
-async def test(auth: Auth = Depends(OpenAuth())):
-    return RestfulResponse.success(await auth_crud.TestDal(auth.db).relationship_where_operations_has())
-
-
-###########################################################
 #                     系统认证                             #
 ###########################################################
 @router.post("/api/login", summary="API 手机号密码登录", description="Swagger API 文档登录认证")
